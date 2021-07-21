@@ -53,6 +53,7 @@ def get_scans(path, ms_all:bool=False, ms_lv=1):
 
 
 # Noise removal
+### multiprocessing
 def noise_removal(mzml_scans, int_thres=1000):
     '''
     Remove mz&i pairs that i lower than int_thres
@@ -90,7 +91,7 @@ def mz_locator(array, mz, error):
 
     return array[index], np.where(index)[0]
 
-
+### multiprocessing + map
 def ms_chromatogram_list(mzml_scans, input_mz, error):
     '''
     Generate a peak list for specific input_mz over
@@ -107,7 +108,7 @@ def ms_chromatogram_list(mzml_scans, input_mz, error):
 
     return intensity
 
-
+### multiprocessing -- anyway to apply funtional programming and speed it up??
 def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.01,
               peakutils_thres=0.02, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=200, max_peak=5,
@@ -321,6 +322,7 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
     result_dict = {}
     rt = [i.scan_time[0] for i in mzml_scans]
 
+### multiprocessing
     for mz in tqdm(mzlist):
         try:
             peak_dict = peak_pick(mzml_scans, mz, err_ppm, enable_score,
