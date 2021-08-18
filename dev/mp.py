@@ -7,7 +7,7 @@ Created on Tue Aug 17 15:12:19 2021
 
 #!/usr/bin/python
 # Next step: add mss_process into the mp.py, make mp use on multiple files
-
+# map issue: solution a) put all_scans as func constant b) call the .py script outside and loop there
 
 import sys
 # import mss
