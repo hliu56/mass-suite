@@ -14,4 +14,4 @@ d_op.to_csv(output_path)
 '''
 data_path = input('data path:')
 output_path = input('output path:')
-align.mss_process(data_path, output_path, thres_noise=2000,enable_score=False)
+align.mss_process(data_path, output_path, thres_noise=5000,enable_score=False)
