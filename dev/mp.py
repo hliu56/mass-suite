@@ -11,7 +11,7 @@ Created on Tue Aug 17 15:12:19 2021
 
 import sys
 # import mss
-sys.path.append('../')
+sys.path.append('/home/hack_summer/mass-suite/')
 from mss import mssmain as msm
 import numpy as np
 from multiprocessing import Pool
@@ -22,19 +22,8 @@ from timeit import default_timer as timer
 import pandas as pd
 from itertools import repeat
 
-#def input file
-#path = '../example_data/ex_1.mzML'
-#scans = msm.get_scans(path)
-#msm.noise_removal(scans, int_thres=5000)
-#def error
-path = '../example_data/'
-all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
-err=20
 
-global mzml_scans
-mzml_scans=[]
-
-def peak_pick(input_mz, error=err, enable_score=False, peak_thres=0.01,
+def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
               peakutils_thres=0.02, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=200, max_peak=5,
               overlap_tol=15, sn_detect=15, rt=None):
@@ -199,34 +188,40 @@ def peak_pick(input_mz, error=err, enable_score=False, peak_thres=0.01,
 
     return result_dict
 
+#def input file
+path = '/home/hack_summer/mass-suite/example_data/ex_2.mzML'
+mzml_scans = msm.get_scans(path)
+msm.noise_removal(mzml_scans, int_thres=5000)
+#def error
+#path = '/home/hack_summer/mass-suite/example_data/'
+#all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
+err=20
 
 
-def main():
+def main(): #Add variable in main() and add loop into the main module
     start = timer()
     
-    for scans in all_scans:
-        rt = [i.scan_time[0] for i in scans]
-        ms_list = msm.mz_gen(scans, err, mz_c_thres=5)
-        mzml_scans = scans
-        with Pool() as pool:
-            peak_dict = pool.map(peak_pick, ms_list)
-            peak_dict = list(filter(None, peak_dict))
-        
-        super_list = []
-        for d in peak_dict:
-            for k, v in d.items():  # d.items() in Python 3+
-                super_list.append([k]+v)
-                
-        rt_index = [ i[0] for i in super_list]
-        rt_list = [rt[i] for i in rt_index]
-        
+    rt = [i.scan_time[0] for i in mzml_scans]
+    ms_list = msm.mz_gen(mzml_scans, err, mz_c_thres=5)
+    with Pool() as pool:
+        peak_dict = pool.map(peak_pick, ms_list)
+        peak_dict = list(filter(None, peak_dict))
     
-        d_result = pd.DataFrame()
-        d_result['m/z'] = [round(i[6],4) for i in super_list]
-        d_result['rt'] = [round(i,2) for i in rt_list]
-        d_result['peak area'] = [i[3] for i in super_list]
-        d_result['sn'] = [i[4] for i in super_list]
-        print(d_result)
+    super_list = []
+    for d in peak_dict:
+        for k, v in d.items():  # d.items() in Python 3+
+            super_list.append([k]+v)
+            
+    rt_index = [ i[0] for i in super_list]
+    rt_list = [rt[i] for i in rt_index]
+    
+
+    d_result = pd.DataFrame()
+    d_result['m/z'] = [round(i[6],4) for i in super_list]
+    d_result['rt'] = [round(i,2) for i in rt_list]
+    d_result['peak area'] = [i[3] for i in super_list]
+    d_result['sn'] = [i[4] for i in super_list]
+    print(d_result)
     
     end = timer()
     print(f'elapsed time: {end - start}')
