@@ -13,7 +13,7 @@ Created on Tue Aug 17 15:12:19 2021
 
 import sys
 # import mss
-sys.path.append('../')
+sys.path.append('/home/hack_summer/mass-suite/')
 from mss import mssmain as msm
 import numpy as np
 from multiprocessing import Pool
@@ -23,7 +23,7 @@ import itertools
 from timeit import default_timer as timer
 import pandas as pd
 
-path = 'D:/UW/directproject/example_data/ex_1.mzml'
+path = '/home/hack_summer/mass-suite/example_data/ex_1.mzML'
 err = 20
 #mzml_scans = msm.get_scans(path)
 #msm.noise_removal(mzml_scans, int_thres=5000)

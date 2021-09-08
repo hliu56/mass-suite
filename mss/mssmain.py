@@ -323,7 +323,7 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
     rt = [i.scan_time[0] for i in mzml_scans]
 
 ### multiprocessing
-    for mz in tqdm(mzlist):
+    for mz in mzlist:
         try:
             peak_dict = peak_pick(mzml_scans, mz, err_ppm, enable_score,
                                   peak_thres=peak_base,
