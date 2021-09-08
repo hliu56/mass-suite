@@ -23,6 +23,16 @@ import itertools
 from timeit import default_timer as timer
 import pandas as pd
 
+path = 'D:/UW/directproject/example_data/ex_1.mzml'
+err = 20
+#mzml_scans = msm.get_scans(path)
+#msm.noise_removal(mzml_scans, int_thres=5000)
+mzml_scans = msm.get_scans(path)
+msm.noise_removal(mzml_scans, int_thres=5000)
+#def error
+#path = '/home/hack_summer/mass-suite/example_data/'
+#all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
+
 
 def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
               peakutils_thres=0.02, min_d=1, rt_window=1.5,
@@ -189,22 +199,14 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
 
     return result_dict
 
-path = '../example_data/ex_1.mzML'
-#mzml_scans = msm.get_scans(path)
-#msm.noise_removal(mzml_scans, int_thres=5000)
-mzml_scans = msm.get_scans(path)[:100]
-msm.noise_removal(mzml_scans, int_thres=5000)
-#def error
-#path = '/home/hack_summer/mass-suite/example_data/'
-#all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
-err=20  
+
 
 def main(): #Add variable in main() and add loop into the main module
     start = timer()
     
     
     rt = [i.scan_time[0] for i in mzml_scans]
-    ms_list = msm.mz_gen(mzml_scans, err, mz_c_thres=5)[:100]
+    ms_list = msm.mz_gen(mzml_scans, err, mz_c_thres=5)
     
     with Pool() as pool:
         peak_dict = pool.map(peak_pick, ms_list)
