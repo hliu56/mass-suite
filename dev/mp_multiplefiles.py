@@ -23,7 +23,7 @@ import itertools
 from timeit import default_timer as timer
 import pandas as pd
 
-path = '/home/hack_summer/mass-suite/example_data/ex_1.mzML'
+path = '../example_data/ex_3.mzML'
 err = 20
 #mzml_scans = msm.get_scans(path)
 #msm.noise_removal(mzml_scans, int_thres=5000)
@@ -204,31 +204,34 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
 def main(): #Add variable in main() and add loop into the main module
     start = timer()
     
-    
-    rt = [i.scan_time[0] for i in mzml_scans]
-    ms_list = msm.mz_gen(mzml_scans, err, mz_c_thres=5)
-    
-    with Pool() as pool:
-        peak_dict = pool.map(peak_pick, ms_list)
-        peak_dict = list(filter(None, peak_dict))
-    super_list = []
-    for d in peak_dict:
-        for k, v in d.items():  # d.items() in Python 3+
-            super_list.append([k]+v)
-
-    rt_index = [ i[0] for i in super_list]
-    rt_list = [rt[i] for i in rt_index]
-    
-
-    d_result = pd.DataFrame()
-    d_result['m/z'] = [round(i[6],4) for i in super_list]
-    d_result['rt'] = [round(i,2) for i in rt_list]
-    d_result['peak area'] = [i[3] for i in super_list]
-    d_result['sn'] = [i[4] for i in super_list]
+    d_result = msm.peak_list(mzml_scans, 20)
     print(d_result)
+    # rt = [i.scan_time[0] for i in mzml_scans]
+    # ms_list = msm.mz_gen(mzml_scans, err, mz_c_thres=5)
+    #
+    # with Pool() as pool:
+    #     peak_dict = pool.map(peak_pick, ms_list)
+    #     peak_dict = list(filter(None, peak_dict))
+    # super_list = []
+    # for d in peak_dict:
+    #     for k, v in d.items():  # d.items() in Python 3+
+    #         super_list.append([k]+v)
+    #
+    # rt_index = [ i[0] for i in super_list]
+    # rt_list = [rt[i] for i in rt_index]
+    #
+    #
+    # d_result = pd.DataFrame()
+    # d_result['m/z'] = [round(i[6],4) for i in super_list]
+    # d_result['rt'] = [round(i,2) for i in rt_list]
+    # d_result['peak area'] = [i[3] for i in super_list]
+    # d_result['sn'] = [i[4] for i in super_list]
+    # print(d_result)
     
     end = timer()
     print(f'elapsed time: {end - start}')
 
 if __name__ == '__main__':
+    main()
+    main()
     main()
