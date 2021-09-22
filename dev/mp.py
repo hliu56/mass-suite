@@ -189,7 +189,7 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
     return result_dict
 
 #def input file
-path = '/home/hack_summer/mass-suite/example_data/ex_2.mzML'
+path = '/home/hack_summer/mass-suite/example_data/ex_1.mzML'
 mzml_scans = msm.get_scans(path)
 msm.noise_removal(mzml_scans, int_thres=5000)
 #def error
@@ -198,7 +198,7 @@ msm.noise_removal(mzml_scans, int_thres=5000)
 err=20
 
 
-def main(): #Add variable in main() and add loop into the main module
+def main():
     start = timer()
     
     rt = [i.scan_time[0] for i in mzml_scans]

@@ -5,13 +5,12 @@ Created on Tue Aug 17 15:12:19 2021
 @author: scarlet_07
 """
 
-#!/usr/bin/python
+# !/usr/bin/python
 # Next step: add mss_process into the mp.py, make mp use on multiple files
 # map issue: solution a) put all_scans as func constant b) call the .py script outside and loop there
 
-#Class
-
 import sys
+
 # import mss
 sys.path.append('/home/hack_summer/mass-suite/')
 from mss import mssmain as msm
@@ -22,16 +21,7 @@ import scipy
 import itertools
 from timeit import default_timer as timer
 import pandas as pd
-
-path = '../example_data/ex_3.mzML'
-err = 20
-#mzml_scans = msm.get_scans(path)
-#msm.noise_removal(mzml_scans, int_thres=5000)
-mzml_scans = msm.get_scans(path)
-msm.noise_removal(mzml_scans, int_thres=5000)
-#def error
-#path = '/home/hack_summer/mass-suite/example_data/'
-#all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
+from itertools import repeat
 
 
 def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
@@ -80,8 +70,8 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
             h_range += 1
             if h_range >= len(intensity) - 1:
                 break
-            if intensity[h_range] < half_intensity:  
-                if h_range - index > 4:  
+            if intensity[h_range] < half_intensity:
+                if h_range - index > 4:
                     # https://stackoverflow.com/questions/55649356/
                     # how-can-i-detect-if-trend-is-increasing-or-
                     # decreasing-in-time-series as alternative
@@ -120,9 +110,9 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
             height = max(peak_range)
             hw_ratio = round(height / width, 0)
             neighbour_blank = (intensity[
-                l_range - sn_detect: l_range] +
-                intensity[h_range: h_range +
-                          sn_detect + 1])
+                               l_range - sn_detect: l_range] +
+                               intensity[h_range: h_range +
+                                                  sn_detect + 1])
             noise = np.std(neighbour_blank)
             if noise != 0:
                 sn = round(height / noise, 3)
@@ -149,16 +139,16 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
                 ab_ratio = round(integration_result / background_area, 3)
                 if enable_score is True:
                     h_half = h_loc + \
-                        (half_intensity - intensity[h_loc]) / \
-                        (intensity[h_loc - 1] - intensity[h_loc])
+                             (half_intensity - intensity[h_loc]) / \
+                             (intensity[h_loc - 1] - intensity[h_loc])
                     l_half = l_loc + \
-                        (half_intensity - intensity[l_loc]) / \
-                        (intensity[l_loc + 1] - intensity[l_loc])
+                             (half_intensity - intensity[l_loc]) / \
+                             (intensity[l_loc + 1] - intensity[l_loc])
                     # when transfer back use rt[index] instead
                     mb = (height - half_intensity) / \
-                        ((h_half - index) * rt_conversion_coef)
+                         ((h_half - index) * rt_conversion_coef)
                     ma = (height - half_intensity) / \
-                        ((index - l_half) * rt_conversion_coef)
+                         ((index - l_half) * rt_conversion_coef)
                     w = rt[h_range] - rt[l_range]
                     t_r = (h_half - l_half) * rt_conversion_coef
                     l_width = rt[index] - rt[l_range]
@@ -166,7 +156,7 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
                     assym = r_width / l_width
                     # define constant -- upper case
                     var = (w ** 2 / (1.764 * ((r_width / l_width)
-                           ** 2) - 11.15 * (r_width / l_width) + 28))
+                                              ** 2) - 11.15 * (r_width / l_width) + 28))
                     x_peak = [w, t_r, l_width, r_width, assym,
                               integration_result, sn, hw_ratio, ab_ratio,
                               height, ma, mb, ma + mb, mb / ma, var]
@@ -180,8 +170,8 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
                 # appending to result
                 if len(result_dict) == 0:
                     (result_dict.update(
-                     {index: [l_range, h_range,
-                              integration_result, sn, score,input_mz]}))
+                        {index: [l_range, h_range,
+                                 integration_result, sn, score, input_mz]}))
                 # Compare with previous item
                 # * get rid of list()
                 elif integration_result != list(result_dict.values())[-1][2]:
@@ -189,8 +179,8 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
                     s_window = abs(index - list(result_dict.keys())[-1])
                     if s_window > overlap_tol:
                         (result_dict.update(
-                         {index: [l_range, h_range, integration_result,
-                                  sn, score, input_mz]}))
+                            {index: [l_range, h_range, integration_result,
+                                     sn, score, input_mz]}))
     # If still > max_peak then select top max_peak results
     if len(result_dict) > max_peak:
         result_dict = dict(sorted(result_dict.items(),
@@ -200,34 +190,42 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
     return result_dict
 
 
+# def input file
+path = '/home/hack_summer/mass-suite/example_data/ex_1.mzML'
+mzml_scans = msm.get_scans(path)
+msm.noise_removal(mzml_scans, int_thres=5000)
+# def error
+# path = '/home/hack_summer/mass-suite/example_data/'
+# all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
+err = 20
 
-def main(): #Add variable in main() and add loop into the main module
+
+def main():
     start = timer()
 
     rt = [i.scan_time[0] for i in mzml_scans]
     ms_list = msm.mz_gen(mzml_scans, err, mz_c_thres=5)
+    peak_dict = map(peak_pick, ms_list)
+    peak_dict = list(filter(None, peak_dict))
 
-    with Pool() as pool:
-        peak_dict = pool.map(peak_pick, ms_list)
-        peak_dict = list(filter(None, peak_dict))
     super_list = []
     for d in peak_dict:
         for k, v in d.items():  # d.items() in Python 3+
-            super_list.append([k]+v)
+            super_list.append([k] + v)
 
-    rt_index = [ i[0] for i in super_list]
+    rt_index = [i[0] for i in super_list]
     rt_list = [rt[i] for i in rt_index]
 
-
     d_result = pd.DataFrame()
-    d_result['m/z'] = [round(i[6],4) for i in super_list]
-    d_result['rt'] = [round(i,2) for i in rt_list]
+    d_result['m/z'] = [round(i[6], 4) for i in super_list]
+    d_result['rt'] = [round(i, 2) for i in rt_list]
     d_result['peak area'] = [i[3] for i in super_list]
     d_result['sn'] = [i[4] for i in super_list]
     print(d_result)
-    
+
     end = timer()
     print(f'elapsed time: {end - start}')
+
 
 if __name__ == '__main__':
     main()

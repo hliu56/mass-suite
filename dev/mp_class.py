@@ -8,11 +8,15 @@ import multiprocessing
 from timeit import default_timer as timer
 import pandas as pd
 
-if __name__ == '__main__':
+def main():
     start = timer()
-    path = '../example_data/'
-    all_scans, file_names = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
-    file_list = [path + str(i) + '.csv' for i in file_names]
+    input_path = input('file path (folder): \n')
+    output_path = input('output path (.csv): \n')
+    noise_thres = int(input('noise threshold: \n'))
+    rt_error = float(input('alignment rt error (min): \n'))
+    mz_error = float(input('alignment mz error (Da): \n'))
+    all_scans, file_names = msm.batch_scans(input_path, remove_noise=True, thres_noise=noise_thres)
+    file_list = [input_path + str(i) + '.csv' for i in file_names]
     files = list(zip(all_scans, file_list))
     jobs = []
     manager = multiprocessing.Manager()
@@ -26,7 +30,12 @@ if __name__ == '__main__':
         proc.join()
 
     df_list = return_dict.values()
-    alignment = align.mss_align(df_list, '../example_data/test.csv', file_names, RT_error = 0.5, mz_error = 0.02)
+    alignment = align.mss_align(df_list, output_path, file_names, RT_error = rt_error, mz_error = mz_error)
     end = timer()
     print(f'elapsed time: {end - start}')
+
+    return
+
+if __name__ == '__main__':
+    main()
 
