@@ -138,7 +138,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
             else:
                 # appends as a new reference if nothing is found
                 value_set(alignment_df, alignment_df.index[-1], row, col_index)
-    alignment_df.rename(columns={'rt': 'Average_rt',
+    alignment_df.rename(columns={'rt': 'Average rt',
                                  'm/z': 'Average m/z',
                                  'sn': 'Average sn',
                                  'score': 'Average score'}, inplace=True)
@@ -154,7 +154,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
         # requires count of nonzero count to calculate the mean properly
         count = np.count_nonzero(alignment_df.iloc[rows, 8:])
         if count > 0:
-            alignment_df.at[rows, 'Average_rt'] = (
+            alignment_df.at[rows, 'Average rt'] = (
                 alignment_df.loc[rows, 's_rt']/count)
             alignment_df.at[rows, 'Average m/z'] = (
                 alignment_df.loc[rows, 's_mz']/count)
@@ -175,7 +175,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
         's_rt', 's_mz',
         's_sn', 's_scr'])
     # rounds numbers in the first two columns
-    alignment_df = alignment_df.round({'Average_rt': 3,
+    alignment_df = alignment_df.round({'Average rt': 3,
                                        'Average m/z': 5})
     print("Alignment done!")
     # converts file for saving

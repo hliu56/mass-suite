@@ -22,6 +22,10 @@ import json
 # Modeling modules
 # from tensorflow import keras
 
+#20210922 note: deal with feature extraction accuracy with multiple peaks:
+#ms_chromatogram_list, mz_gen, peak_pick need to go through
+#mss-mzml_test folder, 1Dexposure1_1.mzML to test 299.1765 10ppm
+
 # *reading external data
 this_dir, this_filename = os.path.split(__file__)
 Model_file_t = os.path.join(this_dir, 'rfmodel_tuned.pkl')
@@ -109,7 +113,7 @@ def ms_chromatogram_list(mzml_scans, input_mz, error):
     return intensity
 
 ### multiprocessing -- anyway to apply funtional programming and speed it up??
-def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.01,
+def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
               peakutils_thres=0.02, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=200, max_peak=5,
               overlap_tol=15, sn_detect=15, rt=None):
@@ -267,9 +271,9 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.01,
                          {index: [l_range, h_range, integration_result,
                                   sn, score]}))
     # If still > max_peak then select top max_peak results
+    result_dict = dict(sorted(result_dict.items(),
+                              key=lambda x: x[1][2], reverse=True))
     if len(result_dict) > max_peak:
-        result_dict = dict(sorted(result_dict.items(),
-                                  key=lambda x: x[1][2], reverse=True))
         result_dict = dict(itertools.islice(result_dict.items(), max_peak))
 
     return result_dict
@@ -301,7 +305,7 @@ def mz_gen(mzml_scans, err_ppm, mz_c_thres):
 
 
 def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
-              peak_base=0.005, peakutils_thres=0.02, min_d=1, rt_window=1.5,
+              peak_base=0.02, peakutils_thres=0.02, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=50,
               max_peak=5):
     '''
@@ -527,10 +531,10 @@ def formula_prediction(mzml_scan, input_mz, error=10, mfRange='C0-100H0-200N0-20
     return prediction_table
 
 
-def mp_peak_list(mzml_scans, file_name, return_dict, err_ppm=10, enable_score=False, mz_c_thres=5,
-              peak_base=0.005, peakutils_thres=0.02, min_d=1, rt_window=1.5,
+def mp_peak_list(mzml_scans, file_name, err_ppm, return_dict, enable_score=False, mz_c_thres=5,
+              peak_base=0.02, peakutils_thres=0.02, min_d=1, rt_window=2.5,
               peak_area_thres=1e5, min_scan=5, max_scan=50,
-              max_peak=5):
+              max_peak=10):
     '''
     Generate a dataframe by looping throughout the
     whole mz space from a given mzml file

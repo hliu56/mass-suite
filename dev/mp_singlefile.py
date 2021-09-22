@@ -12,7 +12,7 @@ Created on Tue Aug 17 15:12:19 2021
 import sys
 
 # import mss
-sys.path.append('/home/hack_summer/mass-suite/')
+sys.path.append('../')
 from mss import mssmain as msm
 import numpy as np
 from multiprocessing import Pool
@@ -23,6 +23,12 @@ from timeit import default_timer as timer
 import pandas as pd
 from itertools import repeat
 
+
+# def input file
+path = '/home/hack_summer/mass-suite/example_data/ex_1.mzML'
+mzml_scans = msm.get_scans(path)
+msm.noise_removal(mzml_scans, int_thres=5000)
+err = 20
 
 def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
               peakutils_thres=0.02, min_d=1, rt_window=1.5,
@@ -188,17 +194,6 @@ def peak_pick(input_mz, error=20, enable_score=False, peak_thres=0.01,
         result_dict = dict(itertools.islice(result_dict.items(), max_peak))
 
     return result_dict
-
-
-# def input file
-path = '/home/hack_summer/mass-suite/example_data/ex_1.mzML'
-mzml_scans = msm.get_scans(path)
-msm.noise_removal(mzml_scans, int_thres=5000)
-# def error
-# path = '/home/hack_summer/mass-suite/example_data/'
-# all_scans, file_list = msm.batch_scans(path, remove_noise=True, thres_noise=5000)
-err = 20
-
 
 def main():
     start = timer()

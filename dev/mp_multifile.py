@@ -6,13 +6,16 @@ from mss import mssmain as msm
 from mss import align
 import multiprocessing
 from timeit import default_timer as timer
+import glob
 import pandas as pd
 
 def main():
     start = timer()
-    input_path = input('file path (folder): \n')
+    input_path = str(input('file path (folder): \n'))
+    print(glob.glob(input_path + '*.mzML'))
     output_path = input('output path (.csv): \n')
     noise_thres = int(input('noise threshold: \n'))
+    error_ppm = int(input('feature extraction error (ppm): \n'))
     rt_error = float(input('alignment rt error (min): \n'))
     mz_error = float(input('alignment mz error (Da): \n'))
     all_scans, file_names = msm.batch_scans(input_path, remove_noise=True, thres_noise=noise_thres)
@@ -22,7 +25,7 @@ def main():
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     for scans in files:
-        p = multiprocessing.Process(target=msm.mp_peak_list, args=(scans[0],scans[1],return_dict))
+        p = multiprocessing.Process(target=msm.mp_peak_list, args=(scans[0],scans[1],error_ppm, return_dict))
         jobs.append(p)
         p.start()
 

@@ -408,6 +408,7 @@ def iso_plot(mzml_scan, input_mz, error, formula):
     plt.title('Isotope pattern comparison')
     plt.legend()
     plt.xlim(precursor_mz - 5, precursor_mz + 10)
+    plt.ylim(-100,100)
 
     return
 
@@ -448,15 +449,15 @@ def overview_scatter(data):
     df = data
     df['max area'] = df.iloc[:, 3:].max(1)
 
-    f = go.FigureWidget([go.Scatter(x=df['Average Rt(min)'],
-                                    y=df['Average Mz'],
+    f = go.FigureWidget([go.Scatter(x=df['Average rt'],
+                                    y=df['Average m/z'],
                                     mode='markers')])
     f.layout.xaxis.title = 'Retention Time (min)'
     f.layout.yaxis.title = 'm/z Ratio'
     scatter = f.data[0]
     scatter.marker.opacity = 0.5
 
-    data_col = ['Average Rt(min)', 'Average Mz', 'S/N average', 'max area']
+    data_col = ['Average rt', 'Average m/z', 'Average sn', 'max area']
     t = go.FigureWidget([go.Table(
         header=dict(values=data_col,
                     fill=dict(color='#C2D4FF'),
