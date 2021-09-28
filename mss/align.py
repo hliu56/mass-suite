@@ -44,7 +44,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
     # col_index to track where to add sample_name columns
     col_index = 8
     name_list = [i[:-5] for i in name_list]
-    alignment_df[name_list] = 0.0
+    alignment_df[name_list] = pd.DataFrame([np.zeros(len(name_list))], index=alignment_df.index)
     alignment_df[name_list] = alignment_df[name_list].astype('float32')
     print("Alignment beginning..")
 

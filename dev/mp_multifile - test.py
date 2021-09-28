@@ -11,7 +11,7 @@ import pandas as pd
 
 def main():
     start = timer()
-    input_path = str(input('file path (folder): \n'))
+    input_path = '../example_data/'
     print(glob.glob(input_path + '*.mzML'))
     output_path = input('output path (.csv): \n')
     noise_thres = int(input('noise threshold: \n'))
