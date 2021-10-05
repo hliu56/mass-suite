@@ -32,8 +32,8 @@ def main():
     for proc in jobs:
         proc.join()
 
-    df_list = return_dict.values()
-    alignment = align.mss_align(df_list, output_path, file_names, RT_error = rt_error, mz_error = mz_error)
+    df_list = return_dict.values() #Check the order of the dict value!
+    alignment = align.mss_align(df_list, output_path, return_dict.keys(), RT_error = rt_error, mz_error = mz_error)
     end = timer()
     print(f'elapsed time: {end - start}')
 

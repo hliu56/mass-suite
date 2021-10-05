@@ -114,7 +114,7 @@ def ms_chromatogram_list(mzml_scans, input_mz, error):
 
 ### multiprocessing -- anyway to apply funtional programming and speed it up??
 def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
-              peakutils_thres=0.02, min_d=1, rt_window=1.5,
+              peakutils_thres=0.1, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=200, max_peak=5,
               overlap_tol=15, sn_detect=15, rt=None):
     '''
@@ -289,7 +289,7 @@ def mz_gen(mzml_scans, err_ppm, mz_c_thres):
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4449330/#SD1
     err_base = 1 + err_ppm * 1e-6
     bin_count = int(np.log(pmz.max() / pmz.min()) 
-                    / np.log(1 + 1e-6 * 10) + 1)
+                    / np.log(err_base) + 1)
     mz_list = np.logspace(0, bin_count - 1,
                           bin_count, base = err_base) * pmz.min()
 
@@ -305,8 +305,8 @@ def mz_gen(mzml_scans, err_ppm, mz_c_thres):
 
 
 def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
-              peak_base=0.02, peakutils_thres=0.02, min_d=1, rt_window=1.5,
-              peak_area_thres=1e5, min_scan=5, max_scan=50,
+              peak_base=0.02, peakutils_thres=0.1, min_d=1, rt_window=1.5,
+              peak_area_thres=1e5, min_scan=5, max_scan=200,
               max_peak=5):
     '''
     Generate a dataframe by looping throughout the
@@ -532,9 +532,9 @@ def formula_prediction(mzml_scan, input_mz, error=10, mfRange='C0-100H0-200N0-20
 
 
 def mp_peak_list(mzml_scans, file_name, err_ppm, return_dict, enable_score=False, mz_c_thres=5,
-              peak_base=0.02, peakutils_thres=0.02, min_d=1, rt_window=2.5,
-              peak_area_thres=1e5, min_scan=5, max_scan=50,
-              max_peak=10):
+              peak_base=0.02, peakutils_thres=0.1, min_d=1, rt_window=1.5,
+              peak_area_thres=1e5, min_scan=5, max_scan=200,
+              max_peak=5):
     '''
     Generate a dataframe by looping throughout the
     whole mz space from a given mzml file
