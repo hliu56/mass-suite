@@ -22,14 +22,14 @@ import json
 # Modeling modules
 # from tensorflow import keras
 
-#20210922 note: deal with feature extraction accuracy with multiple peaks:
-#ms_chromatogram_list, mz_gen, peak_pick need to go through
-#mss-mzml_test folder, 1Dexposure1_1.mzML to test 299.1765 10ppm
+# 20210922 note: deal with feature extraction accuracy with multiple peaks:
+# ms_chromatogram_list, mz_gen, peak_pick need to go through
+# mss-mzml_test folder, 1Dexposure1_1.mzML to test 299.1765 10ppm
 
 # *reading external data
 this_dir, this_filename = os.path.split(__file__)
 Model_file_t = os.path.join(this_dir, 'rfmodel_tuned.pkl')
-#Switch pickle? ONNX?
+# Switch pickle? ONNX?
 rf_model_t = pickle.load(open(Model_file_t, 'rb'))
 Pmodel = rf_model_t
 # Read in formula database **
@@ -37,7 +37,7 @@ Formula_file = os.path.join(this_dir, '100-500.csv')
 cfg = pd.read_csv(Formula_file, index_col=0)
 
 
-def get_scans(path, ms_all:bool=False, ms_lv=1):
+def get_scans(path, ms_all: bool = False, ms_lv=1):
     '''
     The function is used to reorganize the pymzml reading
     into a list that will have better access
@@ -95,6 +95,7 @@ def mz_locator(array, mz, error):
 
     return array[index], np.where(index)[0]
 
+
 ### multiprocessing + map
 def ms_chromatogram_list(mzml_scans, input_mz, error):
     '''
@@ -112,8 +113,9 @@ def ms_chromatogram_list(mzml_scans, input_mz, error):
 
     return intensity
 
+
 ### multiprocessing -- anyway to apply funtional programming and speed it up??
-def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
+def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.001,
               peakutils_thres=0.1, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=200, max_peak=5,
               overlap_tol=15, sn_detect=15, rt=None):
@@ -159,8 +161,8 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
             h_range += 1
             if h_range >= len(intensity) - 1:
                 break
-            if intensity[h_range] < half_intensity:  
-                if h_range - index > 4:  
+            if intensity[h_range] < half_intensity:
+                if h_range - index > 4:
                     # https://stackoverflow.com/questions/55649356/
                     # how-can-i-detect-if-trend-is-increasing-or-
                     # decreasing-in-time-series as alternative
@@ -199,9 +201,9 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
             height = max(peak_range)
             hw_ratio = round(height / width, 0)
             neighbour_blank = (intensity[
-                l_range - sn_detect: l_range] +
-                intensity[h_range: h_range +
-                          sn_detect + 1])
+                               l_range - sn_detect: l_range] +
+                               intensity[h_range: h_range +
+                                                  sn_detect + 1])
             noise = np.std(neighbour_blank)
             if noise != 0:
                 sn = round(height / noise, 3)
@@ -228,16 +230,16 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
                 ab_ratio = round(integration_result / background_area, 3)
                 if enable_score is True:
                     h_half = h_loc + \
-                        (half_intensity - intensity[h_loc]) / \
-                        (intensity[h_loc - 1] - intensity[h_loc])
+                             (half_intensity - intensity[h_loc]) / \
+                             (intensity[h_loc - 1] - intensity[h_loc])
                     l_half = l_loc + \
-                        (half_intensity - intensity[l_loc]) / \
-                        (intensity[l_loc + 1] - intensity[l_loc])
+                             (half_intensity - intensity[l_loc]) / \
+                             (intensity[l_loc + 1] - intensity[l_loc])
                     # when transfer back use rt[index] instead
                     mb = (height - half_intensity) / \
-                        ((h_half - index) * rt_conversion_coef)
+                         ((h_half - index) * rt_conversion_coef)
                     ma = (height - half_intensity) / \
-                        ((index - l_half) * rt_conversion_coef)
+                         ((index - l_half) * rt_conversion_coef)
                     w = rt[h_range] - rt[l_range]
                     t_r = (h_half - l_half) * rt_conversion_coef
                     l_width = rt[index] - rt[l_range]
@@ -245,7 +247,7 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
                     assym = r_width / l_width
                     # define constant -- upper case
                     var = (w ** 2 / (1.764 * ((r_width / l_width)
-                           ** 2) - 11.15 * (r_width / l_width) + 28))
+                                              ** 2) - 11.15 * (r_width / l_width) + 28))
                     x_peak = [w, t_r, l_width, r_width, assym,
                               integration_result, sn, hw_ratio, ab_ratio,
                               height, ma, mb, ma + mb, mb / ma, var]
@@ -259,8 +261,8 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
                 # appending to result
                 if len(result_dict) == 0:
                     (result_dict.update(
-                     {index: [l_range, h_range,
-                              integration_result, sn, score]}))
+                        {index: [l_range, h_range,
+                                 integration_result, sn, score]}))
                 # Compare with previous item
                 # * get rid of list()
                 elif integration_result != list(result_dict.values())[-1][2]:
@@ -268,8 +270,8 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.02,
                     s_window = abs(index - list(result_dict.keys())[-1])
                     if s_window > overlap_tol:
                         (result_dict.update(
-                         {index: [l_range, h_range, integration_result,
-                                  sn, score]}))
+                            {index: [l_range, h_range, integration_result,
+                                     sn, score]}))
     # If still > max_peak then select top max_peak results
     result_dict = dict(sorted(result_dict.items(),
                               key=lambda x: x[1][2], reverse=True))
@@ -288,24 +290,24 @@ def mz_gen(mzml_scans, err_ppm, mz_c_thres):
     # According to msdial it should be mz + error * mz
     # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4449330/#SD1
     err_base = 1 + err_ppm * 1e-6
-    bin_count = int(np.log(pmz.max() / pmz.min()) 
+    bin_count = int(np.log(pmz.max() / pmz.min())
                     / np.log(err_base) + 1)
     mz_list = np.logspace(0, bin_count - 1,
-                          bin_count, base = err_base) * pmz.min()
+                          bin_count, base=err_base) * pmz.min()
 
     digitized = np.digitize(pmz, mz_list)
     unique, counts = np.unique(digitized, return_counts=True)
     counts = counts[1:] + counts[:-1]
     unique = unique[:-1]
-    index = list({key:value for (key,value) 
-               in dict(zip(unique,counts)).items() 
-               if value >= mz_c_thres}.keys())
+    index = list({key: value for (key, value)
+                  in dict(zip(unique, counts)).items()
+                  if value >= mz_c_thres}.keys())
 
     return [mz_list[i] for i in index]
 
 
 def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
-              peak_base=0.02, peakutils_thres=0.1, min_d=1, rt_window=1.5,
+              peak_base=0.001, peakutils_thres=0.1, min_d=1, rt_window=1.5,
               peak_area_thres=1e5, min_scan=5, max_scan=200,
               max_peak=5):
     '''
@@ -326,7 +328,7 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
     result_dict = {}
     rt = [i.scan_time[0] for i in mzml_scans]
 
-### multiprocessing
+    ### multiprocessing
     for mz in mzlist:
         try:
             peak_dict = peak_pick(mzml_scans, mz, err_ppm, enable_score,
@@ -335,7 +337,7 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
                                   min_d=min_d, rt_window=rt_window,
                                   peak_area_thres=peak_area_thres,
                                   min_scan=min_scan, max_scan=max_scan,
-                                  max_peak=max_peak, rt = rt)
+                                  max_peak=max_peak, rt=rt)
         except Exception:  # Catch exception?
             peak_dict = {}
 
@@ -409,10 +411,10 @@ def batch_peak(batch_input, source_list, mz, error):
     return d_result
 
 
-def mf_calculator(mass, mass_error = 10,
+def mf_calculator(mass, mass_error=10,
                   mfRange='C0-100H0-200N0-20O0-20P0-50',
-                  maxresults = 20,
-                  integerUnsaturation = False):
+                  maxresults=20,
+                  integerUnsaturation=False):
     chemcalcURL = 'https://www.chemcalc.org/chemcalc/em'
     massRange = mass * mass_error * 1e-6
     params = {
@@ -428,16 +430,16 @@ def mf_calculator(mass, mass_error = 10,
 
     jsondata = response.read()
     data = json.loads(jsondata)
-    if len(data['results'])!=0:
+    if len(data['results']) != 0:
         dataframe = pd.DataFrame(data['results'])
         dataframe.drop(columns='info', inplace=True)
         dataframe.columns = ['Exact Mass', 'Formula',
                              'Unsat', 'Mass error (Da)', 'Mass error (ppm)']
         dataframe = dataframe[:maxresults].copy()
-    else: 
-        dataframe = pd.DataFrame(columns = ['Exact Mass', 'Formula',
-                             'Unsat', 'Mass error (Da)', 'Mass error (ppm)'])
-        dataframe.loc[0] = [np.nan,np.nan,np.nan,np.nan,np.nan]
+    else:
+        dataframe = pd.DataFrame(columns=['Exact Mass', 'Formula',
+                                          'Unsat', 'Mass error (Da)', 'Mass error (ppm)'])
+        dataframe.loc[0] = [np.nan, np.nan, np.nan, np.nan, np.nan]
     return dataframe
 
 
@@ -501,7 +503,7 @@ def formula_prediction(mzml_scan, input_mz, error=10, mfRange='C0-100H0-200N0-20
         theo_spec = list(zip(m_list, f_list))
 
         def dist(x, y):
-            return (x[0]-y[0])**2 + (x[1]-y[1])**2
+            return (x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2
 
         score = []
         for p in theo_spec:
@@ -513,10 +515,10 @@ def formula_prediction(mzml_scan, input_mz, error=10, mfRange='C0-100H0-200N0-20
                 hit_peak = min(measured_peak, key=lambda peak: dist(peak, p))
                 # Function from SIRIUS, may need later validation
                 f = hit_peak[1]
-                sigma_m = np.sqrt(2) * hit_peak[0] * 1/3 * 1e-6 * 7 * alpha(f)
+                sigma_m = np.sqrt(2) * hit_peak[0] * 1 / 3 * 1e-6 * 7 * alpha(f)
                 x = abs(hit_peak[0] - p[0]) / sigma_m
                 P_Mm = special.erfc(x)
-                sigma_f = 1/3 * hit_peak[1] * np.log10(1 + beta(f))
+                sigma_f = 1 / 3 * hit_peak[1] * np.log10(1 + beta(f))
                 y = np.log10(hit_peak[1] / p[1]) / (np.sqrt(2) * sigma_f)
                 P_fp = special.erfc(y)
                 score.append(0.5 * (P_Mm + P_fp))
@@ -526,15 +528,15 @@ def formula_prediction(mzml_scan, input_mz, error=10, mfRange='C0-100H0-200N0-20
         prediction_table.loc[formula, 'score'] = np.mean(score) * 100
 
     prediction_table.sort_values(by=['score'], inplace=True, ascending=False)
-    prediction_table.insert(0,'Input Mass', precursor_mz)
+    prediction_table.insert(0, 'Input Mass', precursor_mz)
 
     return prediction_table
 
 
 def mp_peak_list(mzml_scans, file_name, err_ppm, return_dict, enable_score=False, mz_c_thres=5,
-              peak_base=0.02, peakutils_thres=0.1, min_d=1, rt_window=1.5,
-              peak_area_thres=1e5, min_scan=5, max_scan=200,
-              max_peak=5):
+                 peak_base=0.001, peakutils_thres=0.1, min_d=1, rt_window=1.5,
+                 peak_area_thres=1e5, min_scan=5, max_scan=200,
+                 max_peak=5):
     '''
     Generate a dataframe by looping throughout the
     whole mz space from a given mzml file
@@ -553,7 +555,7 @@ def mp_peak_list(mzml_scans, file_name, err_ppm, return_dict, enable_score=False
     result_dict = {}
     rt = [i.scan_time[0] for i in mzml_scans]
 
-### multiprocessing
+    ### multiprocessing
     for mz in mzlist:
         try:
             peak_dict = peak_pick(mzml_scans, mz, err_ppm, enable_score,
@@ -562,7 +564,7 @@ def mp_peak_list(mzml_scans, file_name, err_ppm, return_dict, enable_score=False
                                   min_d=min_d, rt_window=rt_window,
                                   peak_area_thres=peak_area_thres,
                                   min_scan=min_scan, max_scan=max_scan,
-                                  max_peak=max_peak, rt = rt)
+                                  max_peak=max_peak, rt=rt)
         except Exception:  # Catch exception?
             peak_dict = {}
 

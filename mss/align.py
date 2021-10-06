@@ -80,7 +80,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
                     # checks for any duplicates
                     if (alignment_df.iloc[overlap, col_index]) > 0:
                         alignment_df.at[overlap, alignment_df.columns[
-                                        col_index]] += tot_samp.iloc[row, 4]
+                            col_index]] += tot_samp.iloc[row, 4]
                         # Averages the mean if there is a repeat intensity
                         alignment_df.at[overlap, alignment_df.columns[
                             col_index]] /= 2
@@ -122,9 +122,9 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
                                (tot_samp.iloc[row, 1] <=
                                 (alignment_df.iloc[:, 1] + RT_error))
                                & ((alignment_df.iloc[:, 0] - mz_error)
-                                   <= tot_samp.iloc[row, 0])
+                                  <= tot_samp.iloc[row, 0])
                                & (tot_samp.iloc[row, 0]
-                                   <= (alignment_df.iloc[:, 0] + mz_error)))
+                                  <= (alignment_df.iloc[:, 0] + mz_error)))
             if len(overlap[0]) > 0:
                 overlap = [overlap][0][0][0]
                 if (alignment_df.iloc[overlap, col_index]) > 0:
@@ -155,13 +155,13 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
         count = np.count_nonzero(alignment_df.iloc[rows, 8:])
         if count > 0:
             alignment_df.at[rows, 'Average rt'] = (
-                alignment_df.loc[rows, 's_rt']/count)
+                    alignment_df.loc[rows, 's_rt'] / count)
             alignment_df.at[rows, 'Average m/z'] = (
-                alignment_df.loc[rows, 's_mz']/count)
+                    alignment_df.loc[rows, 's_mz'] / count)
             alignment_df.at[rows, 'Average sn'] = (
-                alignment_df.loc[rows, 's_sn']/count)
+                    alignment_df.loc[rows, 's_sn'] / count)
             alignment_df.at[rows, 'Average score'] = (
-                alignment_df.loc[rows, 's_scr']/count)
+                    alignment_df.loc[rows, 's_scr'] / count)
         else:
             invalid.append(rows)
             print("Identified invalid peak(s)")  # For detection error
@@ -191,7 +191,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
 
 def mss_process(path, export_name, mz_error=0.015, RT_error=0.5,
                 remove_noise=True, thres_noise=5000,
-                err_ppm=10, enable_score=False, mz_c_thres=5, peak_base=0.005,
+                err_ppm=10, enable_score=False, mz_c_thres=5, peak_base=0.001,
                 peakutils_thres=0.1, min_d=1, rt_window=1.5,
                 peak_area_thres=1e4, min_scan=5, max_scan=50,
                 max_peak=5):
