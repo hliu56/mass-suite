@@ -190,7 +190,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
 
 
 def mss_process(path, export_name, mz_error=0.015, RT_error=0.5,
-                remove_noise=True, thres_noise=5000,
+                remove_noise=True, thres_noise=2000,
                 err_ppm=10, enable_score=False, mz_c_thres=5, peak_base=0.001,
                 peakutils_thres=0.1, min_d=1, rt_window=1.5,
                 peak_area_thres=1e4, min_scan=5, max_scan=50,

@@ -1,6 +1,6 @@
-#import sys
+import sys
+sys.path.append('../')
 import mss
-# sys.path.append('../')
 from mss import mssmain as msm
 from mss import align
 from timeit import default_timer as timer
@@ -14,12 +14,9 @@ output_path = input('path and filename to export:')
 d_op.to_csv(output_path)
 '''
 def main():
-    start = timer()
-    data_path = '../example_data/'#input('data path:')
-    output_path = '../example_data/test2.csv'#input('output path:')
-    align.mss_process(data_path, output_path, thres_noise=5000,enable_score=False)
-    end = timer()
-    print(f'elapsed time: {end - start}')
+    data_path = 'D:/UW/6ppdozonation_mzml/20210618_6PPDozonation_mzml_MSStest/'#input('data path:')
+    output_path = 'D:/UW/6ppdozonation_mzml/summary.csv'#input('output path:')
+    align.mss_process(data_path, output_path,err_ppm=20, thres_noise=3000,enable_score=False)
     return
 
 if __name__ == '__main__':

@@ -51,8 +51,8 @@ def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
     area_thres: count for max peak area from each row
     '''
     d_thres = d_input[d_input[d_input.columns[4:]].max(1) >= area_thres]
-    d_thres = (d_thres[(d_thres['Average RT (min)'] > rt_range[0]) &
-               (d_thres['Average RT (min)'] < rt_range[1])])
+    d_thres = (d_thres[(d_thres['Average rt'] > rt_range[0]) &
+               (d_thres['Average rt'] < rt_range[1])])
     d_thres = (d_thres[(d_thres['Average m/z'] > mz_range[0]) &
                (d_thres['Average m/z'] < mz_range[1])])
     d_thres = d_thres[d_thres['Average sn'] >= sn_thres]
