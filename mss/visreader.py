@@ -26,7 +26,7 @@ def tic_plot(mzml_scans, interactive=True, f_width=10, f_height=6):
 
     if interactive is True:
         fig = go.Figure([go.Scatter(x=time, y=TIC,
-                        hovertemplate='Int: %{y}' + '<br>RT: %{x}minute<br>')])
+                                    hovertemplate='Int: %{y}' + '<br>RT: %{x}minute<br>')])
 
         fig.update_layout(
             template='simple_white',
@@ -55,7 +55,7 @@ def tic_plot(mzml_scans, interactive=True, f_width=10, f_height=6):
 
 
 def ms_spectrum(mzml_scans, time, interactive=False, search=False,
-            f_width=10, f_height=6, source='MoNA'):
+                f_width=10, f_height=6, source='MoNA'):
     '''
     Interactive spectrum plot with nearest retention time from the given scan
     mzml_scans: mzfile
@@ -71,21 +71,21 @@ def ms_spectrum(mzml_scans, time, interactive=False, search=False,
     if interactive is True:
         plt.clf()
         fig = go.Figure([go.Bar(x=mz, y=ints, marker_color='red', width=0.5,
-                         hovertemplate='Int: %{y}' + '<br>m/z: %{x}<br>')])
+                                hovertemplate='Int: %{y}' + '<br>m/z: %{x}<br>')])
         fig.update_traces(marker_color='rgb(158,202,225)',
                           marker_line_color='rgb(0,0,0)',
                           marker_line_width=0.5, opacity=1)
         fig.update_layout(
-                title_text=str(round(rt, 3)) +
-                ' MS spectrum @ ' + str(time) + ' min',
-                template='simple_white',
-                width=f_width * 100,
-                height=f_height * 100,
-                xaxis={'title': 'm/z ratio'},
-                yaxis=dict(
-                    showexponent='all',
-                    exponentformat='e',
-                    title='Intensity'))
+            title_text=str(round(rt, 3)) +
+                       ' MS spectrum @ ' + str(time) + ' min',
+            template='simple_white',
+            width=f_width * 100,
+            height=f_height * 100,
+            xaxis={'title': 'm/z ratio'},
+            yaxis=dict(
+                showexponent='all',
+                exponentformat='e',
+                title='Intensity'))
         fig.show()
 
     elif interactive is False:
@@ -99,11 +99,11 @@ def ms_spectrum(mzml_scans, time, interactive=False, search=False,
     if search is True:
         for i in range(len(mz)):
             if i == 0:
-                list_string = str(round(mz[i], 4)) + ' ' +\
-                    str(round(ints[i], 1)) + '\r'
+                list_string = str(round(mz[i], 4)) + ' ' + \
+                              str(round(ints[i], 1)) + '\r'
             else:
-                list_string += str(round(mz[i], 4)) + ' ' +\
-                    str(round(ints[i], 1)) + '\r'
+                list_string += str(round(mz[i], 4)) + ' ' + \
+                               str(round(ints[i], 1)) + '\r'
         pyperclip.copy(list_string)
         if source == 'MoNA':
             webbrowser.open("https://mona.fiehnlab.ucdavis.edu/spectra/search")
@@ -150,21 +150,21 @@ def frag_plot(mzml_scans, precursor, error=20, scan_index=0,
             fig = go.Figure([go.Bar(x=mz, y=ints,
                                     marker_color='red', width=0.5,
                                     hovertemplate='Int: %{y}' +
-                                    '<br>m/z: %{x}<br>')])
+                                                  '<br>m/z: %{x}<br>')])
             fig.update_traces(marker_color='rgb(158,202,225)',
                               marker_line_color='rgb(0,0,0)',
                               marker_line_width=0.5, opacity=1)
             fig.update_layout(
-                    title_text=str(round(rt, 3)) +
-                    ' min MS1 spectrum, input ' + str(rt) + ' min',
-                    template='simple_white',
-                    width=1000,
-                    height=600,
-                    xaxis={'title': 'm/z ratio'},
-                    yaxis=dict(
-                        showexponent='all',
-                        exponentformat='e',
-                        title='Intensity'))
+                title_text=str(round(rt, 3)) +
+                           ' min MS1 spectrum, input ' + str(rt) + ' min',
+                template='simple_white',
+                width=1000,
+                height=600,
+                xaxis={'title': 'm/z ratio'},
+                yaxis=dict(
+                    showexponent='all',
+                    exponentformat='e',
+                    title='Intensity'))
             fig.show()
 
         elif interactive is False:
@@ -174,16 +174,16 @@ def frag_plot(mzml_scans, precursor, error=20, scan_index=0,
             plt.xlabel('m/z')
             plt.ylabel('Intensity')
             plt.title('MS1 spectrum')
-            plt.xlim(0,)
+            plt.xlim(0, )
 
         if search is True:
             for i in range(len(mz)):
                 if i == 0:
-                    list_string = str(round(mz[i], 4)), ' ' +\
-                        str(round(ints[i], 1)) + '\r'
+                    list_string = str(round(mz[i], 4)), ' ' + \
+                                  str(round(ints[i], 1)) + '\r'
                 else:
-                    list_string += str(round(mz[i], 4)) + ' ' +\
-                        str(round(ints[i], 1)) + '\r'
+                    list_string += str(round(mz[i], 4)) + ' ' + \
+                                   str(round(ints[i], 1)) + '\r'
             pyperclip.copy(list_string)
             if source == 'MoNA':
                 (webbrowser.open
@@ -241,7 +241,7 @@ def formula_mass(input_formula, mode='pos'):
         if count == '':
             count = 1
 
-        mol_weight += elist[element]*float(count)
+        mol_weight += elist[element] * float(count)
 
     if mode == 'pos':
         mol_weight += elist['e'] + elist['H']
@@ -284,12 +284,12 @@ def ms_chromatogram(mzml_scans, input_value, error,
 
     def fill_gap(input_list, baseline=500):
         for i, intens in enumerate(input_list):
-            if i > 1 and i < len(input_list)-3:
+            if i > 1 and i < len(input_list) - 3:
                 if intens > baseline:
-                    for index in np.arange(i+1, i+3):
+                    for index in np.arange(i + 1, i + 3):
                         if input_list[index] == 0:
-                            input_list[index] = (input_list[index-1] +
-                                                 input_list[index+1])/2
+                            input_list[index] = (input_list[index - 1] +
+                                                 input_list[index + 1]) / 2
                         else:
                             continue
         return
@@ -299,11 +299,11 @@ def ms_chromatogram(mzml_scans, input_value, error,
 
     if interactive is True:
         fig = go.Figure([go.Scatter(x=retention_time, y=intensity,
-                        hovertemplate='Int: %{y}' + '<br>RT: %{x}minute<br>')])
+                                    hovertemplate='Int: %{y}' + '<br>RT: %{x}minute<br>')])
 
         fig.update_layout(
             title_text=str(round(input_mz, 2)) +
-            ' chromatogram, error ' + str(error),
+                       ' chromatogram, error ' + str(error),
             template='simple_white',
             width=f_width * 100,
             height=f_height * 100,
@@ -343,10 +343,9 @@ def ms_chromatogram(mzml_scans, input_value, error,
 
 def integration_plot(mzml_scans, input_mz, error,
                      f_width=20, f_height=10):
-
     result_dict = peak_pick(mzml_scans, input_mz, error,
                             min_scan=5, peak_area_thres=0)
-    
+
     rt = [i.scan_time[0] for i in mzml_scans]
     ints = ms_chromatogram_list(mzml_scans, input_mz, error)
 
@@ -374,6 +373,7 @@ def iso_plot(mzml_scan, input_mz, error, formula):
     mzml_scans: mzfile
     time: selected time for the scan
     '''
+
     def closest(lst, K):
         idx = np.abs(np.asarray(lst) - K).argmin()
         return idx
@@ -408,7 +408,7 @@ def iso_plot(mzml_scan, input_mz, error, formula):
     plt.title('Isotope pattern comparison')
     plt.legend()
     plt.xlim(precursor_mz - 5, precursor_mz + 10)
-    plt.ylim(-100,100)
+    plt.ylim(-100, 100)
 
     return
 
@@ -430,7 +430,7 @@ def manual_integration(mzml_scans, input_mz, error, start, end):
             intensity.append(sum(scan.i[target_index]))
 
     def closest(lst, K):
-        return lst[min(range(len(lst)), key=lambda i: abs(lst[i]-K))]
+        return lst[min(range(len(lst)), key=lambda i: abs(lst[i] - K))]
 
     s_index = rt_lst.index(closest(rt_lst, start))
     e_index = rt_lst.index(closest(rt_lst, end))
@@ -467,7 +467,7 @@ def overview_scatter(data):
                    align=['left'] * 5))])
 
     def selection_fn(trace, points, selector):
-        t.data[0].cells.values =\
+        t.data[0].cells.values = \
             [df.loc[points.point_inds][col] for col in data_col]
 
     scatter.on_selection(selection_fn)

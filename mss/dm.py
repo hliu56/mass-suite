@@ -26,10 +26,11 @@ def mss_convert(d_input, rtmz_key, pa_index):
     d_pa.fillna(0, inplace=True)
     d_merge = pd.concat([d_rtmz, d_pa], axis=1)
     d_merge = d_merge.rename(columns={rtmz_key[0]: 'Average RT (min)',
-                             rtmz_key[1]: 'Average m/z'})
+                                      rtmz_key[1]: 'Average m/z'})
     d_merge.insert(2, "Average sn", 100)
     d_merge.insert(3, "Average score", 1)
     return d_merge
+
 
 ### multiprocessing
 def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
@@ -52,9 +53,9 @@ def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
     '''
     d_thres = d_input[d_input[d_input.columns[4:]].max(1) >= area_thres]
     d_thres = (d_thres[(d_thres['Average rt'] > rt_range[0]) &
-               (d_thres['Average rt'] < rt_range[1])])
+                       (d_thres['Average rt'] < rt_range[1])])
     d_thres = (d_thres[(d_thres['Average m/z'] > mz_range[0]) &
-               (d_thres['Average m/z'] < mz_range[1])])
+                       (d_thres['Average m/z'] < mz_range[1])])
     d_thres = d_thres[d_thres['Average sn'] >= sn_thres]
     d_thres = d_thres[d_thres['Average score'] >= score_thres]
     d_thres.reset_index(inplace=True, drop=True)
@@ -65,7 +66,7 @@ def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
     col_sample = [col for col in d_thres.columns if col not in col_blank]
     # Sample maximum area vs Blank average area to count for svb
     d_sample = (d_thres[d_thres[col_sample[4:]].max(axis=1) /
-                d_thres[col_blank].mean(axis=1) > svb_thres][col_sample])
+                        d_thres[col_blank].mean(axis=1) > svb_thres][col_sample])
     d_sample.reset_index(inplace=True)
     d_sample.drop(columns=['index'], inplace=True)
     # Get a list of triplicate, every triplicate is in a sublist
@@ -76,7 +77,7 @@ def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
     # apply(lambda x : x.replace('-','_')) in case
     # people use '-' for parsing
     trip_list = ([list(i) for j, i in groupby(d_sample.columns[4:],
-                 lambda a: a.split('_')[:-1])])
+                                              lambda a: a.split('_')[:-1])])
     trip_list = [i for i in trip_list if len(i) >= 2]
     # filter out columns that is not in triplicate -- sample naming issue
 
@@ -86,10 +87,10 @@ def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
             if row[1:].count(0) > empty_thres:
                 d_sample.loc[row.Index, triplicate] = 0
                 # if more than thres, then set all three values to 0
-#             elif np.mean(row[1:]) != 0:
-#                 if np.std(row[1:]) / np.mean(row[1:]) > cv_thres:
-#                     d_sample.loc[row.Index, triplicate] = 0
-#                   need verify, not work for now
+            #             elif np.mean(row[1:]) != 0:
+            #                 if np.std(row[1:]) / np.mean(row[1:]) > cv_thres:
+            #                     d_sample.loc[row.Index, triplicate] = 0
+            #                   need verify, not work for now
             else:
                 pass
     d_sample = d_sample[~(d_sample[d_sample.columns[4:]] == 0).all(1)]
@@ -103,7 +104,7 @@ def data_prep(d_input, blank_keyword, simp_summary=False, svb_thres=10,
             simp_dict.update({column[0][: -2]: avg, ' CV #' + str(i): cv})
         d_result = pd.DataFrame(simp_dict)
         d_result = (pd.concat([d_sample[d_sample.columns[:4]],
-                    d_result], axis=1))
+                               d_result], axis=1))
     elif simp_summary is False:
         d_result = d_sample.copy()
     return d_result
@@ -125,7 +126,7 @@ def eps_assess(data, min_pts):
     distances, indices = nbrs.kneighbors(data)
     distances = np.sort(distances, axis=0)
     distances = distances[:, 1]
-    x = np.arange(1, len(distances)+1)
+    x = np.arange(1, len(distances) + 1)
     y = distances
     plt.plot(x, y)
     f = interp1d(x, y)
@@ -162,12 +163,12 @@ def ms_cluster(d_input, select_keyword, normalization='linear',
     # silent the warning -- but divide by 0 still exist
     for row in c_data:
         if normalization == 'linear':
-            c_norm.append(row/max(row))
+            c_norm.append(row / max(row))
         elif normalization == 'zscore':
-            c_norm.append((row-np.mean(row))/np.std(row))
+            c_norm.append((row - np.mean(row)) / np.std(row))
         elif normalization == 'log':
             row[row == 0] = 1
-            c_norm.append(np.log10(row)/np.log10(max(row)))
+            c_norm.append(np.log10(row) / np.log10(max(row)))
         else:
             pass
     # Clean up dataframe
@@ -233,7 +234,6 @@ def ms_cluster(d_input, select_keyword, normalization='linear',
 
 def trend_calc(d_input, select_keyword, min_size=5, normalization='linear',
                method='pearsonr', visual=True):
-
     """This function calculates clustering
     based on the pearson correlation. It takes in a dataframe
     and a user defined value for what qualifies as a cluster.
@@ -247,12 +247,12 @@ def trend_calc(d_input, select_keyword, min_size=5, normalization='linear',
     c_norm = []
     for row in c_data:
         if normalization == 'linear':
-            c_norm.append(row/max(row))
+            c_norm.append(row / max(row))
         elif normalization == 'zscore':
-            c_norm.append((row-np.mean(row))/np.std(row))
+            c_norm.append((row - np.mean(row)) / np.std(row))
         elif normalization == 'log':
             row[row == 0] = 1
-            c_norm.append(np.log10(row)/np.log10(max(row)))
+            c_norm.append(np.log10(row) / np.log10(max(row)))
     c_norm = np.asarray(c_norm)
     d_norm = pd.DataFrame(c_norm)
     d_norm['index'] = d_input.index
@@ -277,7 +277,7 @@ def trend_calc(d_input, select_keyword, min_size=5, normalization='linear',
                                                    d_norm.iloc[row, 2:])
             elif method == 'mannwhitneyu':
                 corr, p_val = (scipy.stats.mannwhitneyu(d_norm.iloc[0, 2:],
-                               d_norm.iloc[row, 2:], alternative=None))
+                                                        d_norm.iloc[row, 2:], alternative=None))
             elif method == 'kruskal':
                 corr, p_val = scipy.stats.kruskal(d_norm.iloc[0, 2:],
                                                   d_norm.iloc[row, 2:])
@@ -347,8 +347,8 @@ def source_label(d_input, sourcelist, area_thres=5000, concat=True):
     d_summary['source'] = "NA"
     for row in d_summary.itertuples():
         sourcelabel = list(d_summary.columns[[col_index for col_index,
-                           peak_avg in enumerate(row[1: -1])
-                           if peak_avg >= area_thres]])
+                                                            peak_avg in enumerate(row[1: -1])
+                                              if peak_avg >= area_thres]])
         if len(sourcelabel) != 0:
             labelstr = ','.join(sourcelabel)
             d_summary.at[row.Index, 'source'] = labelstr
@@ -366,7 +366,7 @@ def source_report(d_input, source_key, mix_key, method='multiple',
     # **only take the concat dataframe from labeling function
     # prefilter & dataframe arrangement
     d_mix = (d_input[(d_input[[col for col in
-             d_input.columns if 'Cv' in col]] <= CV_thres).all(1)])
+                               d_input.columns if 'Cv' in col]] <= CV_thres).all(1)])
     # all cv should below thres in order to be checked
     d_simp = d_mix[source_key]
     print('Threshold set to', pa_thres)
@@ -383,7 +383,7 @@ def source_report(d_input, source_key, mix_key, method='multiple',
         result = []
         for col in mix_col:
             n_feature = (sum(d_mix[d_mix[col] >= pa_thres]
-                         ['source'].str.contains(source)))
+                             ['source'].str.contains(source)))
             cov_score = n_feature / sum(d_mix['source'].str.contains(source))
             if method == 'single':
                 mix = d_mix[d_mix['source'] == source][col]
@@ -391,13 +391,13 @@ def source_report(d_input, source_key, mix_key, method='multiple',
             elif method == 'multiple':
                 mix = d_mix[d_mix['source'].str.contains(source)][col]
                 s_simp = (d_simp.loc[d_mix[
-                          d_mix['source'].str.contains(source)].index][source])
+                    d_mix['source'].str.contains(source)].index][source])
             match_index = [i for i, j in enumerate(mix) if j >= pa_thres]
             dilu = mix.iloc[match_index] / s_simp.iloc[match_index]
             ratio_score = np.average(dilu[dilu < 1])
             result.append([n_feature, cov_score, ratio_score])
         d_st = pd.concat([d_st, pd.DataFrame(result)], axis=1)
-        c_name.extend(['n_'+str(source), 'cover_s', 'ratio_s'])
+        c_name.extend(['n_' + str(source), 'cover_s', 'ratio_s'])
     d_st.columns = c_name
     return d_st
 
@@ -408,11 +408,11 @@ def batch_alignment(d_ref, d_align, rt_error=0.5, mz_error=0.015):
     for row in np.arange(len(d_ref)):
         # Find overlap using the error range
         overlap = np.where((d_align.iloc[:, 0] - rt_error <=
-                           d_ref.iloc[row, 0]) & (d_ref.iloc[row, 0] <=
-                           d_align.iloc[:, 0] + rt_error) &
+                            d_ref.iloc[row, 0]) & (d_ref.iloc[row, 0] <=
+                                                   d_align.iloc[:, 0] + rt_error) &
                            (d_align.iloc[:, 1] - mz_error <=
-                           d_ref.iloc[row, 1]) & (d_ref.iloc[row, 1] <=
-                           d_align.iloc[:, 1] + mz_error))
+                            d_ref.iloc[row, 1]) & (d_ref.iloc[row, 1] <=
+                                                   d_align.iloc[:, 1] + mz_error))
         if len(overlap[0]) == 1:
             result.append([overlap[0][0], row])
         elif len(overlap[0]) > 1:
@@ -420,8 +420,8 @@ def batch_alignment(d_ref, d_align, rt_error=0.5, mz_error=0.015):
             for i in overlap[0]:
                 # if multiple hits, use the closer feature for alignment
                 (dist.append(np.sqrt(((
-                 d_align.iloc[i, 0] - d_ref.iloc[row, 0])**2) +
-                 ((d_align.iloc[i, 1] - d_ref.iloc[row, 1])**2))))
+                                              d_align.iloc[i, 0] - d_ref.iloc[row, 0]) ** 2) +
+                                     ((d_align.iloc[i, 1] - d_ref.iloc[row, 1]) ** 2))))
             result.append([overlap[0][np.argmin(dist)], row])
     # Modeling using overlapping features except noises
     align_index = [i[0] for i in result]
@@ -450,9 +450,9 @@ def transpose(d_input, target_col):
     d_transpose.reset_index(inplace=True)
     d_transpose = d_transpose.rename(columns={'index': 'dilu_vol'})
     d_transpose['dilu_vol'] = (d_transpose['dilu_vol'].apply(
-                               lambda x: x.replace('-', '_')))
+        lambda x: x.replace('-', '_')))
     d_transpose['dilu_vol'] = (d_transpose['dilu_vol'].apply(
-                               lambda x: float(x.split('_')[-2][:-2])))
+        lambda x: float(x.split('_')[-2][:-2])))
     list_insert = [-2] + list(list_label)
     df_length = len(d_transpose)
     d_transpose.loc[df_length] = list_insert
@@ -474,10 +474,10 @@ def feature_model(d_input, cluster_algorithm=False, test_frac=0.5,
         # d_concat_model = d_transpose.drop([d_transpose.index[-1]])
         # drop the index row
         xtrain, xtest, ytrain, ytest = (train_test_split(
-                                        d_transpose[d_transpose.columns[1:]],
-                                        d_transpose['dilu_vol'],
-                                        test_size=test_frac,
-                                        random_state=42))
+            d_transpose[d_transpose.columns[1:]],
+            d_transpose['dilu_vol'],
+            test_size=test_frac,
+            random_state=42))
         # reattach the cluster row back for indexing
         xtrain.reset_index(inplace=True, drop=True)
         xtest.reset_index(inplace=True, drop=True)
@@ -491,12 +491,12 @@ def feature_model(d_input, cluster_algorithm=False, test_frac=0.5,
         list_clusterDF2 = []
         for label in unique_label:
             d_cm_label = (xtrain[[i for i in xtrain.columns
-                          if xtrain.iloc[-1][i] == label]])
+                                  if xtrain.iloc[-1][i] == label]])
             # index using the label row --update later to avoid warning
             d_cm_label.drop(d_cm_label.tail(1).index, inplace=True)
             list_clusterDF.append(d_cm_label)
             d_cm_label2 = (xtest[[i for i in xtest.columns
-                           if xtest.iloc[-1][i] == label]])
+                                  if xtest.iloc[-1][i] == label]])
             d_cm_label2.drop(d_cm_label2.tail(1).index, inplace=True)
             list_clusterDF2.append(d_cm_label2)
     else:
@@ -504,9 +504,9 @@ def feature_model(d_input, cluster_algorithm=False, test_frac=0.5,
         cluster_index = d_transpose.iloc[-1].copy()
         # d_concat_model = d_transpose.drop([d_transpose.index[-1]])
         xtrain, xtest, ytrain, ytest = (train_test_split(
-                                        d_transpose[d_transpose.columns[1:]],
-                                        d_transpose['dilu_vol'],
-                                        test_size=0.5, random_state=42))
+            d_transpose[d_transpose.columns[1:]],
+            d_transpose['dilu_vol'],
+            test_size=0.5, random_state=42))
     print('data split finished!')
     if model_method == 'linear_reg':
         reg_list = []
@@ -542,14 +542,14 @@ def feature_model(d_input, cluster_algorithm=False, test_frac=0.5,
         if cluster_algorithm is True:
             for i in range(len(list_clusterDF)):
                 model = (RandomForestRegressor(n_estimators=1000,
-                         max_features=features, random_state=seed))
+                                               max_features=features, random_state=seed))
                 reg = model.fit(list_clusterDF[i], ytrain)
                 scores.append(reg.score(list_clusterDF2[i], ytest))
                 pred.append(reg.predict(list_clusterDF2[i]))
                 reg_list.append(reg)
         else:
             model = (RandomForestRegressor(n_estimators=1000,
-                     max_features=features, random_state=seed))
+                                           max_features=features, random_state=seed))
             reg = model.fit(xtrain, ytrain)
             reg.predict(xtest)
     elif model_method == 'ensemble_bagging_dt':
@@ -561,16 +561,16 @@ def feature_model(d_input, cluster_algorithm=False, test_frac=0.5,
         if cluster_algorithm is True:
             for i in range(len(list_clusterDF)):
                 model = (BaggingRegressor(
-                         base_estimator=DecisionTreeClassifier(),
-                         n_estimators=num_trees,
-                         random_state=seed))
+                    base_estimator=DecisionTreeClassifier(),
+                    n_estimators=num_trees,
+                    random_state=seed))
                 reg = model.fit(list_clusterDF[i], ytrain)
                 scores.append(reg.score(list_clusterDF2[i], ytest))
                 pred.append(reg.predict(list_clusterDF2[i]))
                 reg_list.append(reg)
         else:
             model = (BaggingRegressor(base_estimator=DecisionTreeClassifier(),
-                     n_estimators=num_trees, random_state=seed))
+                                      n_estimators=num_trees, random_state=seed))
             reg = model.fit(xtrain, ytrain)
             reg.predict(xtest)
     elif model_method == 'ensemble_bagging_svc':
@@ -582,7 +582,7 @@ def feature_model(d_input, cluster_algorithm=False, test_frac=0.5,
         if cluster_algorithm is True:
             for i in range(len(list_clusterDF)):
                 model = (BaggingRegressor(base_estimator=SVC(),
-                         n_estimators=num_trees, random_state=seed))
+                                          n_estimators=num_trees, random_state=seed))
                 reg = model.fit(list_clusterDF[i], ytrain)
                 scores.append(reg.score(list_clusterDF2[i], ytest))
                 pred.append(reg.predict(list_clusterDF2[i]))
@@ -676,19 +676,21 @@ def cluster_pred(model_list, d_merge, col_name, selected_cluster,
     pred_list = []
     for i in np.arange(len(model_list)):
         (pred_list.extend(model_list[i].predict(np.asarray(d_merge[
-         d_merge['label'] == input_label[i]][col_name]).reshape(1, -1))))
+                                                               d_merge['label'] == input_label[i]][col_name]).reshape(1,
+                                                                                                                      -1))))
 
     def mean_confidence_interval(data, confidence):
         a = 1.0 * np.array(data)
         n = len(a)
         se = scipy.stats.sem(a)
-        h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+        h = se * scipy.stats.t.ppf((1 + confidence) / 2., n - 1)
         return h
+
     if model_merge == 'weighted_size':
         size_list = []
         for i in input_label:
             size_list.append(d_merge[d_merge['label'] == i].shape[0])
-        weight_list = [i/sum(size_list) for i in size_list]
+        weight_list = [i / sum(size_list) for i in size_list]
         pred = sum([p * w for p, w in zip(pred_list, weight_list)])
         # Leave the CI part out for now..
         # ci = mean_confidence_interval(pred_list, confidence=confidence)
@@ -698,45 +700,44 @@ def cluster_pred(model_list, d_merge, col_name, selected_cluster,
     return pred
 
 
-def PCA_report(dataframe, n_components=5, figsize=(5,5)):
+def PCA_report(dataframe, n_components=5, figsize=(5, 5)):
     df_p = dataframe.copy()
     x = df_p.values
     # Standardizing the features
     x = StandardScaler().fit_transform(x)
     pca = PCA(n_components=n_components)
-    principalComponents = pca.fit_transform(x.T) #X : array-like, shape (n_samples, n_features)
+    principalComponents = pca.fit_transform(x.T)  # X : array-like, shape (n_samples, n_features)
 
     # Plotting the Cumulative Sum of the Explained Variance, use explained variance to choose number of principle componenets
     # you may choose number of componenets that explained > 99% variance
     plt.figure()
     plt.plot(np.cumsum(pca.explained_variance_ratio_))
     plt.xlabel('Number of Components')
-    plt.ylabel('Variance (%)') #for each component
+    plt.ylabel('Variance (%)')  # for each component
     plt.title('Pulsar Dataset Explained Variance')
     plt.show()
     print('explained ratio:', pca.explained_variance_ratio_)
     pca = PCA(n_components=2)
     principalComponents = pca.fit_transform(x.T)
-    principalDf = pd.DataFrame(data = principalComponents
-                 , columns = ['principal component 1', 'principal component 2'])
+    principalDf = pd.DataFrame(data=principalComponents
+                               , columns=['principal component 1', 'principal component 2'])
     principalDf.head()
     plt.style.use('default')
     finalDf = principalDf
     finalDf['label'] = list(df_p.columns)
-    principle_1 = finalDf.loc[:,'principal component 1']
-    principle_2 = finalDf.loc[:,'principal component 2']
+    principle_1 = finalDf.loc[:, 'principal component 1']
+    principle_2 = finalDf.loc[:, 'principal component 2']
     n = list(df_p.columns)
 
     fig, ax = plt.subplots(figsize=figsize)
-    ax.scatter(principle_2, principle_1,s=50,marker ='+')
+    ax.scatter(principle_2, principle_1, s=50, marker='+')
     plt.xlabel('PC2')
     plt.ylabel('PC1')
     plt.title('Principle Component Analysis Result')
 
-
     for i, txt in enumerate(n):
-        ax.annotate(txt, (principle_2[i], principle_1[i]),rotation=15)
+        ax.annotate(txt, (principle_2[i], principle_1[i]), rotation=15)
 
     plt.show()
-    
+
     return finalDf
