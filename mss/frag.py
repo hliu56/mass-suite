@@ -16,7 +16,7 @@ def massbank(frag_list, minsimilarity=500):
     data = data_str.encode()
     # print(data)
     headers = {
-      "content-type": "application/json",
+        "content-type": "application/json",
     }
     req = urllib.request.Request(url, data, headers)
     response = urllib.request.urlopen(req)
@@ -56,7 +56,7 @@ def massbank(frag_list, minsimilarity=500):
         link = ('https://mona.fiehnlab.ucdavis.edu/spectra/display/'
                 + result['hit']['id'])
         result_list.append([name, formula, inchi, instrument,
-                           energy, mode, p_type, score, link])
+                            energy, mode, p_type, score, link])
     d_result = pd.DataFrame(result_list,
                             columns=['name', 'formula', 'inchiKey',
                                      'instrument', 'CE', 'ionization mode',
@@ -148,7 +148,7 @@ def frag_comp(mzml_scans, precursor, error=20, scan_index=0, mona_index=0,
         data_str = json.dumps(values)
         data = data_str.encode()
         headers = {
-          "content-type": "application/json",
+            "content-type": "application/json",
         }
         req = urllib.request.Request(url, data, headers)
         response = urllib.request.urlopen(req)
@@ -161,28 +161,28 @@ def frag_comp(mzml_scans, precursor, error=20, scan_index=0, mona_index=0,
         mona_i = [-float(b) for a, b in spec2]
 
         # normalize scan intensity
-        ints = ints/ints.max()*100
+        ints = ints / ints.max() * 100
 
         if interactive is True:
             plt.clf()
             fig = go.Figure([go.Bar(x=mz, y=ints, marker_color='red',
-                            width=0.5, hovertemplate='Int: %{y}' +
-                            '<br>m/z: %{x}<br>')])
+                                    width=0.5, hovertemplate='Int: %{y}' +
+                                                             '<br>m/z: %{x}<br>')])
             fig.update_traces(marker_color='rgb(158,202,225)',
                               marker_line_color='rgb(0,0,0)',
                               marker_line_width=0.5, opacity=1)
             fig.update_layout(
-                    title_text=(str(round(rt, 3)) +
-                                ' min MS1 spectrum, input ' +
-                                str(rt) + ' min'),
-                    template='simple_white',
-                    width=1000,
-                    height=600,
-                    xaxis={'title': 'm/z ratio'},
-                    yaxis=dict(
-                        showexponent='all',
-                        exponentformat='e',
-                        title='Intensity'))
+                title_text=(str(round(rt, 3)) +
+                            ' min MS1 spectrum, input ' +
+                            str(rt) + ' min'),
+                template='simple_white',
+                width=1000,
+                height=600,
+                xaxis={'title': 'm/z ratio'},
+                yaxis=dict(
+                    showexponent='all',
+                    exponentformat='e',
+                    title='Intensity'))
             fig.show()
 
         elif interactive is False:
@@ -197,7 +197,7 @@ def frag_comp(mzml_scans, precursor, error=20, scan_index=0, mona_index=0,
             plt.ylabel('Relative Intensity %')
             plt.title('fragment spectrum')
             plt.legend()
-            plt.xlim(0,)
+            plt.xlim(0, )
 
         if search is True:
             for i in range(len(mz)):
@@ -210,7 +210,7 @@ def frag_comp(mzml_scans, precursor, error=20, scan_index=0, mona_index=0,
             pyperclip.copy(list_string)
             if source == 'MoNA':
                 (webbrowser.open(
-                 "https://mona.fiehnlab.ucdavis.edu/spectra/search"))
+                    "https://mona.fiehnlab.ucdavis.edu/spectra/search"))
             elif source == 'metfrag':
                 webbrowser.open("https://msbi.ipb-halle.de/MetFragBeta/")
     else:

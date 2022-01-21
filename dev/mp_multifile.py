@@ -9,6 +9,7 @@ from timeit import default_timer as timer
 import glob
 import pandas as pd
 
+
 def main():
     start = timer()
     input_path = str(input('file path (folder): \n'))
@@ -25,20 +26,20 @@ def main():
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     for scans in files:
-        p = multiprocessing.Process(target=msm.mp_peak_list, args=(scans[0],scans[1],error_ppm, return_dict))
+        p = multiprocessing.Process(target=msm.mp_peak_list, args=(scans[0], scans[1], error_ppm, return_dict))
         jobs.append(p)
         p.start()
 
     for proc in jobs:
         proc.join()
 
-    df_list = return_dict.values() #Check the order of the dict value!
-    alignment = align.mss_align(df_list, output_path, return_dict.keys(), RT_error = rt_error, mz_error = mz_error)
+    df_list = return_dict.values()  # Check the order of the dict value!
+    alignment = align.mss_align(df_list, output_path, return_dict.keys(), RT_error=rt_error, mz_error=mz_error)
     end = timer()
     print(f'elapsed time: {end - start}')
 
     return
 
+
 if __name__ == '__main__':
     main()
-
