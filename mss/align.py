@@ -4,6 +4,7 @@ from tqdm import tqdm
 import os
 from .mssmain import ms_chromatogram_list, batch_scans, peak_list
 
+# Warning!! The item in the name_list needs to be >5 string lengths
 
 def stack(d_batch):
     """This function compiles all samples files into one dataframe
@@ -43,7 +44,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
                                         's_scr': 'float32'})
     # col_index to track where to add sample_name columns
     col_index = 8
-    name_list = [i[:-5] for i in name_list]
+    name_list = [i[:-5] for i in name_list] # Caution here!!
     alignment_df[name_list] = pd.DataFrame([np.zeros(len(name_list))], index=alignment_df.index)
     alignment_df[name_list] = alignment_df[name_list].astype('float32')
     print("Alignment beginning..")

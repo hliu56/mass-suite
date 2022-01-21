@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import os
-from mssmain import ms_chromatogram_list, batch_scans, peak_list
+from .mssmain import ms_chromatogram_list, batch_scans, peak_list
 """This file contains the functions needed to correct the peak positions
 of different samples accumulated in one day's worth of analysis."""
 
