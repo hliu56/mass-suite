@@ -1,12 +1,7 @@
 # mass-suite   ![logo](./doc/pic/logo_size1.jpg)
 
-[![Build Status](https://travis-ci.com/XiminHu/mass-suite.svg?branch=master)](https://travis-ci.com/XiminHu/mass-suite)
-[![Coverage Status](https://coveralls.io/repos/github/XiminHu/mass-suite/badge.svg?branch=master)](https://coveralls.io/github/XiminHu/mass-suite?branch=master)
 [![License](https://img.shields.io/github/license/XiminHu/mass-suite)](https://img.shields.io/github/license/XiminHu/mass-suite)
-
 [![Issues](https://img.shields.io/github/issues/XiminHu/mass-suite)](https://img.shields.io/github/issues/XiminHu/mass-suite)
-[![File Size](https://img.shields.io/github/repo-size/XiminHu/mass-suite?color=pink)](https://img.shields.io/github/repo-size/XiminHu/mass-suite?color=pink)
-[![Last Commit](https://img.shields.io/github/last-commit/XiminHu/mass-suite)](https://img.shields.io/github/last-commit/XiminHu/mass-suite)
 
 This package is initiated from the University of Washington eScience capstone project.
 
@@ -22,6 +17,7 @@ The mass-suite package is also providing a data mining option for the feature cl
 #### Release date: 2020/06/24
 
 ## Update
+- 2022/03/12: Source identification/pattern recognition algorithm developed
 - 2020/09/01: Feature extraction pipeline validated comparing with msdial pipeline output
 - 2020/09/07: Updated formula prediction and isotopic score function, currently support formula prediction for small molecules under 500 Da
 - 2020/12/15: Rewrite alignment module, fixed bugs in peak picking functions
@@ -190,7 +186,7 @@ All the data used for model training is under 'example_data' folder and can be r
 
 ## Testing and continuous integration
 
-The majority of code is tested under unittest and pushed through [travis CI](https://travis-ci.com/github/XiminHu/mass-suite).
+The majority of code is tested under unittest and pushed through [GitHub Actions](https://github.com/XiminHu/mass-suite/actions).
 
 ## Licensing
 
