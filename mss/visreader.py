@@ -272,15 +272,8 @@ def ms_chromatogram(mzml_scans, input_value, error,
 
     retention_time = []
     intensity = []
-    for scan in mzml_scans:
-        # print(i)
-        retention_time.append(scan.scan_time[0])
-
-        _, target_index = mz_locator(scan.mz, input_mz, error)
-        if target_index == 'NA':
-            intensity.append(0)
-        else:
-            intensity.append(max(scan.i[target_index]))
+    retention_time = [i.scan_time[0] for i in mzml_scans]
+    intensity = ms_chromatogram_list(mzml_scans, input_mz, error)
 
     def fill_gap(input_list, baseline=500):
         for i, intens in enumerate(input_list):
