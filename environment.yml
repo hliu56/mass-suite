@@ -142,6 +142,6 @@ dependencies:
     - retrying==1.3.3
     - sqlalchemy==1.3.16
     - pyisopach==0.1.2
-    - pymzml
+    - pymzml==2.4.6
 prefix: /home/dmar/anaconda3/envs/mss
 
