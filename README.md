@@ -1,6 +1,6 @@
 # mass-suite   ![logo](./doc/pic/logo_size1.jpg)
 
-[![Build](https://github.com/XiminHu/mass-suite/actions/workflows/python-package-conda.yml/badge.svg)
+![Build](https://github.com/XiminHu/mass-suite/actions/workflows/python-package-conda.yml/badge.svg)
 [![License](https://img.shields.io/github/license/XiminHu/mass-suite)](https://img.shields.io/github/license/XiminHu/mass-suite)
 [![Issues](https://img.shields.io/github/issues/XiminHu/mass-suite)](https://img.shields.io/github/issues/XiminHu/mass-suite)
 
