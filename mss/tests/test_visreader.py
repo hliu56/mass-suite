@@ -1,10 +1,11 @@
 import unittest
 from mss import visreader
+import numpy as np
 
 
 class test_dm(unittest.TestCase):
     def test_mz_locator(self):
-        test_array = [0, 10, 20, 50, 100]
+        test_array = np.array([0, 10, 20, 50, 100])
         result = visreader.mz_locator(test_array, 49.9999, 20)
         assert result[0][0] == 50, 'Wrong mz found'
         assert result[1][0] == 3, 'Wrong index found'

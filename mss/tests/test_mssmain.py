@@ -24,7 +24,7 @@ class test_mssmain(unittest.TestCase):
     def test_noise_removal(self):
         test_scan = test_scan_file
         mssmain.noise_removal(test_scan)
-        assert sum(test_scan[0].i <= 1000) == 0,\
+        assert sum(test_scan[0].i <= 1000) == 0, \
             "noise didn't properly removed"
         return
 
@@ -32,7 +32,7 @@ class test_mssmain(unittest.TestCase):
         test_scan = test_scan_file
         mzlist = mssmain.mz_locator(test_scan[0].mz, 117.113, 20)
         assert type(mzlist) == tuple, "output type is wrong"
-        assert mzlist[0][0] - 117.113 <= 20 * 117.113,\
+        assert mzlist[0][0] - 117.113 <= 20 * 117.113, \
             "selected mz is above defined error range"
         assert mzlist[1][0] != 0, "index error"
         return
@@ -42,7 +42,7 @@ class test_mssmain(unittest.TestCase):
         test_dict = mssmain.peak_pick(test_scan, 299.146, 20)
         assert type(test_dict) == dict, "output type is wrong"
         assert len(test_dict.keys()) != 0, "didn't find the peak"
-        assert list(test_dict.values())[0][2] - 136350 <= 1,\
+        assert list(test_dict.values())[0][2] - 136350 <= 1, \
             "intergration result error"
         return
 
@@ -53,20 +53,11 @@ class test_mssmain(unittest.TestCase):
         assert d_test.score.dtype == 'int64', "wrong score type"
         return
 
-    def test_formula_calc(self):  # More to add during later development
-        test_mz = 299.1765
-        test_composition = 'CHON'
-        d_test = mssmain.formula_calc(test_mz, test_composition)
-        assert d_test.shape[0] == 2, "Wrong shape"
-        assert d_test.index.dtype == 'object', "Wrong dtype"
-        return
-
     def test_formula_prediction(self):
         test_scan = test_scan_file
-        d_test = mssmain.formula_prediction(test_scan, 299.1765, 5, f_error=10)
+        d_test = mssmain.formula_prediction(test_scan, 299.1765, 5, error=10)
         assert d_test.shape[1] == 4, "Wrong dataframe shape"
         return
-
 
 #    def test_batch_scans(self):
 #       return

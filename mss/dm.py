@@ -25,7 +25,7 @@ def mss_convert(d_input, rtmz_key, pa_index):
     d_pa = d_input.iloc[:, pa_index:].copy()
     d_pa.fillna(0, inplace=True)
     d_merge = pd.concat([d_rtmz, d_pa], axis=1)
-    d_merge = d_merge.rename(columns={rtmz_key[0]: 'Average RT (min)',
+    d_merge = d_merge.rename(columns={rtmz_key[0]: 'Average rt',
                                       rtmz_key[1]: 'Average m/z'})
     d_merge.insert(2, "Average sn", 100)
     d_merge.insert(3, "Average score", 1)
@@ -259,7 +259,7 @@ def trend_calc(d_input, select_keyword, min_size=5, normalization='linear',
     d_norm.set_index('index', inplace=True)
     dropna_col = d_norm.columns
     # Post treatment to fit the d_norm into original codes
-    d_norm.insert(0, "RT", d_input['Average RT (min)'].tolist())
+    d_norm.insert(0, "RT", d_input['Average rt'].tolist())
     d_norm.insert(1, "MZ", d_input['Average m/z'].tolist())
     d_norm.dropna(subset=dropna_col, inplace=True)
     d_norm.reset_index(drop=True, inplace=True)
