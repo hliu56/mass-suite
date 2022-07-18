@@ -56,7 +56,7 @@ class test_mssmain(unittest.TestCase):
     def test_formula_prediction(self):
         test_scan = test_scan_file
         d_test = mssmain.formula_prediction(test_scan, 299.1765, error=10)
-        assert d_test.shape[1] == 4, "Wrong dataframe shape"
+        assert d_test.shape[1] == 6, "Wrong dataframe shape"
         return
 
 #    def test_batch_scans(self):
