@@ -179,6 +179,12 @@ All the data used in the project is giving credit to [Center of Urban Water](htt
 	Katherine T. Peter, Christopher Wu, Zhenyu Tian, and Edward P. Kolodziej
 	Environmental Science & Technology 2019 53 (21), 12257-12268
 	DOI: 10.1021/acs.est.9b04481
+	
+	Transformation Product Formation upon Heterogeneous Ozonation of the Tire Rubber Antioxidant 6PPD (N-(1,3-dimethylbutyl)-N′-phenyl-p-phenylenediamine)
+	Ximin Hu, Haoqi Nina Zhao, Zhenyu Tian, Katherine T. Peter, Michael C. Dodd, and Edward P. Kolodziej
+	Environmental Science & Technology Letters 2022 9 (5), 413-419
+	DOI: 10.1021/acs.estlett.2c00187
+
 
 
 ## Model training and testing
