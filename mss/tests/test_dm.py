@@ -14,7 +14,7 @@ file_path = os.path.join(data_path, file)
 test_path2 = os.path.join(mss.__path__[0], 'tests')
 data_path2 = os.path.join(test_path2, 'data')
 file2 = 'sample0815.csv'
-file_path3 = os.path.join(data_path2, file2)
+file_path2 = os.path.join(data_path2, file2)
 # Test update: how to write this type of test in chain
 # output from one function is input for next function
 
@@ -105,8 +105,8 @@ class test_dm(unittest.TestCase):
         return
 
     def test_batch_alignment(self):
-        d_model = pd.read_csv(file_path2)
-        d_test = pd.read_csv(file_path3)
+        d_model = pd.read_csv(file_path)
+        d_test = pd.read_csv(file_path2)
         d_merge = dm.batch_alignment(d_model, d_test)
         assert len(d_merge) > 0, 'alignment went wrong'
         assert type(d_merge) == pd.core.frame.DataFrame, 'wrong output'
@@ -121,7 +121,7 @@ class test_dm(unittest.TestCase):
         d_sample2 = dm.ms_cluster(d_sample, ['SR520-Cal'], 'linear',
                                   d_reduce=False, visual=False,
                                   eps=0.6, min_samples=10)
-        d_ref = pd.read_csv(file_path3)
+        d_ref = pd.read_csv(file_path2)
         d_model = d_sample2[d_sample2['label'] != -1]
         d_merge = dm.batch_alignment(d_model, d_ref)
         dilu_col = ['SR520-Cal', 'SR520_Cal']
@@ -139,7 +139,7 @@ class test_dm(unittest.TestCase):
         d_sample2 = dm.ms_cluster(d_sample, ['SR520-Cal'], 'linear',
                                   d_reduce=False, visual=False,
                                   eps=0.6, min_samples=10)
-        d_ref = pd.read_csv(file_path3)
+        d_ref = pd.read_csv(file_path2)
         d_model = d_sample2[d_sample2['label'] != -1]
         d_merge = dm.batch_alignment(d_model, d_ref)
         dilu_col = ['SR520-Cal', 'SR520_Cal']
@@ -171,7 +171,7 @@ class test_dm(unittest.TestCase):
         d_sample2 = dm.ms_cluster(d_sample, ['SR520-Cal'], 'linear',
                                   d_reduce=False, visual=False,
                                   eps=0.6, min_samples=10)
-        d_ref = pd.read_csv(file_path3)
+        d_ref = pd.read_csv(file_path2)
         d_model = d_sample2[d_sample2['label'] != -1]
         d_merge = dm.batch_alignment(d_model, d_ref)
         dilu_col = ['SR520-Cal', 'SR520_Cal']
