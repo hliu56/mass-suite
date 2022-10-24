@@ -11,7 +11,8 @@ data_path = os.path.join(test_path, 'data')
 file = 'sample1114.csv'
 file_path = os.path.join(data_path, file)
 test_path2 = os.path.join(mss.__path__[0], 'tests')
-file_path2 = os.path.join(test_path2, file)
+data_path2 = os.path.join(test_path, 'data')
+file_path2 = os.path.join(data_path2, file)
 file2 = 'sample0815.csv'
 file_path3 = os.path.join(test_path2, file2)
 # Test update: how to write this type of test in chain
