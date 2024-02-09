@@ -1,12 +1,10 @@
 import pymzml
 from tqdm import tqdm
 import numpy as np
-
+import time
 from scipy.integrate import simps
 import pandas as pd
-
 import peakutils
-
 import glob
 from pathlib import Path
 import scipy
@@ -37,6 +35,18 @@ Formula_file = os.path.join(this_dir, '100-500.csv')
 cfg = pd.read_csv(Formula_file, index_col=0)
 
 
+def scan_to_dict(scan):
+    scan_dict = {
+        'i': scan.i,
+        'mz': scan.mz,
+        'scan time': scan.scan_time,
+        'selected precursors': scan.selected_precursors,
+        'ms level': scan.ms_level,
+        'TIC': scan.TIC
+    }
+    return scan_dict
+
+
 def get_scans(path, ms_all: bool = False, ms_lv=1):
     '''
     The function is used to reorganize the pymzml reading
@@ -49,15 +59,14 @@ def get_scans(path, ms_all: bool = False, ms_lv=1):
     mzrun = pymzml.run.Reader(path)
 
     if ms_all is False:
-        scans = [scan for scan in mzrun if scan.ms_level == ms_lv]
+        scans = [scan_to_dict(scan) for scan in mzrun if scan['ms level'] == ms_lv]
     elif ms_all is True:
-        scans = [scan for scan in mzrun]
+        scans = [scan_to_dict(scan) for scan in mzrun]
 
     return scans
 
 
 # Noise removal
-### multiprocessing
 def noise_removal(mzml_scans, int_thres=1000):
     '''
     Remove mz&i pairs that i lower than int_thres
@@ -67,10 +76,10 @@ def noise_removal(mzml_scans, int_thres=1000):
     int_thres: threshold for removing noises
     '''
     for scan in mzml_scans:
-        if scan.ms_level == 1:
-            drop_index = np.argwhere(scan.i <= int_thres)
-            scan.i = np.delete(scan.i, drop_index)
-            scan.mz = np.delete(scan.mz, drop_index)
+        if scan['ms level'] == 1:
+            drop_index = np.argwhere(scan['i'] <= int_thres)
+            scan['i'] = np.delete(scan['i'], drop_index)
+            scan['mz'] = np.delete(scan['mz'], drop_index)
         else:
             continue
 
@@ -105,11 +114,11 @@ def ms_chromatogram_list(mzml_scans, input_mz, error):
     '''
     intensity = []
     for scan in mzml_scans:
-        _, target_index = mz_locator(scan.mz, input_mz, error)
+        _, target_index = mz_locator(scan['mz'], input_mz, error)
         if target_index.size == 0:
             intensity.append(0)
         else:
-            intensity.append(max(scan.i[target_index]))
+            intensity.append(max(scan['i'][target_index]))
 
     return intensity
 
@@ -134,8 +143,9 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.001,
     overlap_tot: overlap scans for two peaks within the same precursor
     sn_detect: scan numbers before/after the peak for sn calculation
     '''
+
     if not rt:
-        rt = [i.scan_time[0] for i in mzml_scans]
+        rt = [i['scan time'][0] for i in mzml_scans]
     intensity = ms_chromatogram_list(mzml_scans, input_mz, error)
 
     # Get rt_window corresponding to scan number
@@ -284,7 +294,7 @@ def peak_pick(mzml_scans, input_mz, error, enable_score=True, peak_thres=0.001,
 # Function to filter out empty mz slots to speed up the process
 def mz_gen(mzml_scans, err_ppm, mz_c_thres):
     # Function remake needed
-    pmz = [scan.mz for scan in mzml_scans]
+    pmz = [scan['mz'] for scan in mzml_scans]
     pmz = np.hstack(pmz).squeeze()
 
     # According to msdial it should be mz + error * mz
@@ -318,17 +328,19 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
     mz_c_thres: defines how much mz need to be within a cluster for
     a valid precursor in peak list detection
     '''
+    current_process = os.getpid()
 
     # Get m/z range -- updated 0416
-    print('Generating mz list...')
+    print(f'(PID: {current_process}) Generating mz list...', flush=True)
+
 
     mzlist = mz_gen(mzml_scans, err_ppm, mz_c_thres)
-    print('Finding peaks...')
+    print(f'(PID: {current_process}) Finding peaks...', flush=True)
 
     result_dict = {}
-    rt = [i.scan_time[0] for i in mzml_scans]
+    rt = [i['scan time'][0] for i in mzml_scans]
 
-    ### multiprocessing
+
     for mz in mzlist:
         try:
             peak_dict = peak_pick(mzml_scans, mz, err_ppm, enable_score,
@@ -339,8 +351,8 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
                                   min_scan=min_scan, max_scan=max_scan,
                                   max_peak=max_peak, rt=rt)
         except Exception:  # Catch exception?
+            ('exception')
             peak_dict = {}
-
         if len(peak_dict) != 0:
             if len(result_dict) == 0:
                 for index in peak_dict:
@@ -357,16 +369,16 @@ def peak_list(mzml_scans, err_ppm=10, enable_score=True, mz_c_thres=5,
                     result_dict['score'].append(peak_dict[index][4])
                     result_dict['peak area'].append(peak_dict[index][2])
     # print(result_dict)
-    print('Peak processing finished!')
+    print(f'(PID: {current_process}) Peak processing finished!', flush=True)
     d_result = pd.DataFrame(result_dict)
     d_result['rt'] = round(d_result['rt'], 2)
     d_result['m/z'] = round(d_result['m/z'], 4)
-    print('Dataframe created!')
-
+    print(f'(PID: {current_process}) Dataframe created!')
     return d_result
 
 
 # Only work on MS1 scans, needs update on the MS2 included scans
+
 def batch_scans(path, remove_noise=True, thres_noise=1000):
     all_files = glob.glob(path + "/*.mzML")
     scans = []
@@ -377,10 +389,11 @@ def batch_scans(path, remove_noise=True, thres_noise=1000):
             noise_removal(scan, thres_noise)
         scans.append(scan)
         file_list.append(Path(file).name)
-    print(file_list)
     print('Batch read finished!')
 
     return scans, file_list
+
+
 
 
 def batch_peak(batch_input, source_list, mz, error):
@@ -393,7 +406,7 @@ def batch_peak(batch_input, source_list, mz, error):
         rt = []
         result_dict = peak_pick(scans, mz, error)
         for scan in scans:
-            rt.append(scan.scan_time[0])
+            rt.append(scan['scan time'][0])
         for index in result_dict:
             rt_max.append(round(rt[index], 2))
             rt_start.append(round(rt[list(result_dict.values())[0][0]], 2))
@@ -423,7 +436,7 @@ def mf_calculator(mass, mass_error=10,
         'massRange': massRange,
         'integerUnsaturation': integerUnsaturation
     }
-
+    time.sleep(1)
     f = urllib.parse.urlencode(params)
     f = f.encode('utf-8')
     response = urllib.request.urlopen(chemcalcURL, f)
@@ -456,8 +469,8 @@ def formula_prediction(mzml_scan, input_mz, error=10, mfRange='C0-100H0-200N0-20
     intensity_max = ms_chromatogram_list(mzml_scan, input_mz, error)
     scan = mzml_scan[np.argmax(intensity_max)]
 
-    mz = scan.mz
-    inten = scan.i
+    mz = scan['mz']
+    inten = scan['i']
 
     precursor_idx = closest(mz, input_mz)
     precursor_mz = mz[precursor_idx]
