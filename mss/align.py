@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-import os
 from .mssmain import ms_chromatogram_list, batch_scans, peak_list
+from multiprocessing import Pool
+from functools import partial
 
 # Warning!! The item in the name_list needs to be >5 string lengths
 
@@ -44,7 +45,7 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
                                         's_scr': 'float32'})
     # col_index to track where to add sample_name columns
     col_index = 8
-    name_list = [i[:-5] for i in name_list] # Caution here!!
+    name_list = [i[:-5] for i in name_list]  # Caution here!!
     alignment_df[name_list] = pd.DataFrame([np.zeros(len(name_list))], index=alignment_df.index)
     alignment_df[name_list] = alignment_df[name_list].astype('float32')
     print("Alignment beginning..")
@@ -190,32 +191,52 @@ def mss_align(d_batch, export_name, name_list, RT_error, mz_error):
     return alignment_df
 
 
+def multiprocessing_peak_list(batch_scan, err_ppm, enable_score, mz_c_thres, peak_base,
+                              peakutils_thres, min_d, rt_window, peak_area_thres,
+                              min_scan, max_scan, max_peak, n_jobs):
+
+
+    with Pool(n_jobs) as pool:
+        partial_peak_list = partial(peak_list, err_ppm=err_ppm,
+                                    enable_score=enable_score, mz_c_thres=mz_c_thres,
+                                    peak_base=peak_base,
+                                    peakutils_thres=peakutils_thres,
+                                    min_d=min_d, rt_window=rt_window,
+                                    peak_area_thres=peak_area_thres,
+                                    min_scan=min_scan,
+                                    max_scan=max_scan, max_peak=max_peak)
+        d_peak_list = pool.map(partial_peak_list, batch_scan)
+    return d_peak_list
+
+
 def mss_process(path, export_name, mz_error=0.015, RT_error=0.5,
                 remove_noise=True, thres_noise=2000,
                 err_ppm=10, enable_score=False, mz_c_thres=5, peak_base=0.001,
                 peakutils_thres=0.1, min_d=1, rt_window=1.5,
                 peak_area_thres=1e4, min_scan=5, max_scan=50,
-                max_peak=5):
-    print('Reading files...')
+                max_peak=5, n_jobs=1):
+
     batch_scan, name_list = batch_scans(path, remove_noise=remove_noise,
                                         thres_noise=thres_noise)
-    print('Processing peak list...')
-    d_peak = []
-    for i in range(len(batch_scan)):
-        print('Processing', str(int(i + 1)),
-              'out of ', len(batch_scan), 'file')
-        d_result = peak_list(batch_scan[i], err_ppm=err_ppm,
-                             enable_score=enable_score, mz_c_thres=mz_c_thres,
-                             peak_base=peak_base,
-                             peakutils_thres=peakutils_thres,
-                             min_d=min_d, rt_window=rt_window,
-                             peak_area_thres=peak_area_thres,
-                             min_scan=min_scan,
-                             max_scan=max_scan, max_peak=max_peak)
-        d_peak.append(d_result)
 
+
+    print('Processing peak list...')
+    d_peak = multiprocessing_peak_list(batch_scan, err_ppm=err_ppm,
+                                       enable_score=enable_score, mz_c_thres=mz_c_thres,
+                                       peak_base=peak_base,
+                                       peakutils_thres=peakutils_thres,
+                                       min_d=min_d, rt_window=rt_window,
+                                       peak_area_thres=peak_area_thres,
+                                       min_scan=min_scan,
+                                       max_scan=max_scan, max_peak=max_peak, n_jobs=n_jobs)
+    print('peak list done!')
     d_align = mss_align(d_peak, export_name, name_list, RT_error=RT_error,
                         mz_error=mz_error)
 
     print('Finished!')
     return d_align
+
+
+
+
+
